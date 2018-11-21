@@ -9,4 +9,3 @@ std_msgs/Header header               # Standard metadata for higher-level stampe
                                      # * header.frame_id Filled with the relative_frame.
 gazebo_msgs/EntityState state        # Contains pose and twist.
 bool success                         # Return true if get was successful. If false, the state contains garbage.
-string status_message                # Comments if available.

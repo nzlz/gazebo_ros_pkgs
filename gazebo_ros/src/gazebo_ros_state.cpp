@@ -95,9 +95,9 @@ void GazeboRosStatePrivate::GetEntityState(
   auto entity = world_->EntityByName(_req->name);
   if (!entity) {
     _res->success = false;
-    _res->status_message = "GetEntityState: entity [" + _req->name + "] does not exist";
 
-    RCLCPP_ERROR(ros_node_->get_logger(), _res->status_message.c_str());
+    RCLCPP_ERROR(ros_node_->get_logger(),
+      "GetEntityState: entity [%s] does not exist", _req->name);
     return;
   }
 
@@ -122,10 +122,10 @@ void GazeboRosStatePrivate::GetEntityState(
       "GetEntityState: reference_frame is empty/world, using inertial frame");
   } else {
     _res->success = false;
-    _res->status_message = "GetEntityState: reference entity [" + _req->name +
-      "] not found, did you forget to scope the entity's name?";
 
-    RCLCPP_ERROR(ros_node_->get_logger(), _res->status_message.c_str());
+    RCLCPP_ERROR(ros_node_->get_logger(),
+      "GetEntityState: reference entity [%s] not found, did you forget to scope the entity name?",
+      _req->name);
     return;
   }
 
@@ -140,7 +140,6 @@ void GazeboRosStatePrivate::GetEntityState(
   _res->state.twist.angular = Convert<geometry_msgs::msg::Vector3>(entity_ang_vel);
 
   _res->success = true;
-  _res->status_message = "GetEntityState: got entity state";
 }
 
 void GazeboRosStatePrivate::SetEntityState(
@@ -161,9 +160,9 @@ void GazeboRosStatePrivate::SetEntityState(
   auto entity = world_->EntityByName(_req->state.name);
   if (!entity) {
     _res->success = false;
-    _res->status_message = "SetEntityState: entity [" + _req->state.name + "] does not exist";
 
-    RCLCPP_ERROR(ros_node_->get_logger(), _res->status_message.c_str());
+    RCLCPP_ERROR(ros_node_->get_logger(),
+      "SetEntityState: entity [%s] does not exist", _req->state.name);
     return;
   }
 
@@ -182,10 +181,10 @@ void GazeboRosStatePrivate::SetEntityState(
       "SetEntityState: reference_frame is empty/world, using inertial frame");
   } else {
     _res->success = false;
-    _res->status_message = "GetEntityState: reference entity [" + _req->state.name +
-      "] not found, did you forget to scope the entity's name?";
 
-    RCLCPP_ERROR(ros_node_->get_logger(), _res->status_message.c_str());
+    RCLCPP_ERROR(ros_node_->get_logger(),
+      "GetEntityState: reference entity [%s] not found, did you forget to scope the entity name?",
+      _req->state.name);
     return;
   }
 
@@ -210,7 +209,6 @@ void GazeboRosStatePrivate::SetEntityState(
 
   // Fill response
   _res->success = true;
-  _res->status_message = "SetEntityState: set entity state done";
 }
 
 GZ_REGISTER_WORLD_PLUGIN(GazeboRosState)
