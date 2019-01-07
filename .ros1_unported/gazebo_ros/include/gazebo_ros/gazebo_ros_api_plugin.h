@@ -184,18 +184,6 @@ public:
   bool applyJointEffort(gazebo_msgs::ApplyJointEffort::Request &req,gazebo_msgs::ApplyJointEffort::Response &res);
 
   /// \brief
-  bool resetSimulation(std_srvs::Empty::Request &req,std_srvs::Empty::Response &res);
-
-  /// \brief
-  bool resetWorld(std_srvs::Empty::Request &req,std_srvs::Empty::Response &res);
-
-  /// \brief
-  bool pausePhysics(std_srvs::Empty::Request &req,std_srvs::Empty::Response &res);
-
-  /// \brief
-  bool unpausePhysics(std_srvs::Empty::Request &req,std_srvs::Empty::Response &res);
-
-  /// \brief
   bool clearJointForces(gazebo_msgs::JointRequest::Request &req,gazebo_msgs::JointRequest::Response &res);
   bool clearJointForces(std::string joint_name);
 
@@ -291,10 +279,6 @@ private:
   ros::ServiceServer apply_joint_effort_service_;
   ros::ServiceServer set_model_configuration_service_;
   ros::ServiceServer set_link_state_service_;
-  ros::ServiceServer reset_simulation_service_;
-  ros::ServiceServer reset_world_service_;
-  ros::ServiceServer pause_physics_service_;
-  ros::ServiceServer unpause_physics_service_;
   ros::ServiceServer clear_joint_forces_service_;
   ros::ServiceServer clear_body_wrenches_service_;
   ros::Subscriber    set_link_state_topic_;
