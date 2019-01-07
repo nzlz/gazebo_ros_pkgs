@@ -351,51 +351,6 @@ void GazeboRosApiPlugin::advertiseServices()
   set_joint_properties_service_ = nh_->advertiseService(set_joint_properties_aso);
 
   // Advertise more services on the custom queue
-<<<<<<< HEAD
-  std::string set_link_state_service_name("set_link_state");
-  ros::AdvertiseServiceOptions set_link_state_aso =
-    ros::AdvertiseServiceOptions::create<gazebo_msgs::SetLinkState>(
-                                                                    set_link_state_service_name,
-                                                                    boost::bind(&GazeboRosApiPlugin::setLinkState,this,_1,_2),
-                                                                    ros::VoidPtr(), &gazebo_queue_);
-  set_link_state_service_ = nh_->advertiseService(set_link_state_aso);
-
-  // Advertise topic on custom queue
-  // topic callback version for set_link_state
-  ros::SubscribeOptions link_state_so =
-    ros::SubscribeOptions::create<gazebo_msgs::LinkState>(
-                                                          "set_link_state",10,
-                                                          boost::bind( &GazeboRosApiPlugin::updateLinkState,this,_1),
-                                                          ros::VoidPtr(), &gazebo_queue_);
-  set_link_state_topic_ = nh_->subscribe(link_state_so);
-
-  // topic callback version for set_model_state
-  ros::SubscribeOptions model_state_so =
-    ros::SubscribeOptions::create<gazebo_msgs::ModelState>(
-                                                           "set_model_state",10,
-                                                           boost::bind( &GazeboRosApiPlugin::updateModelState,this,_1),
-                                                           ros::VoidPtr(), &gazebo_queue_);
-  set_model_state_topic_ = nh_->subscribe(model_state_so);
-=======
-  std::string pause_physics_service_name("pause_physics");
-  ros::AdvertiseServiceOptions pause_physics_aso =
-    ros::AdvertiseServiceOptions::create<std_srvs::Empty>(
-                                                          pause_physics_service_name,
-                                                          boost::bind(&GazeboRosApiPlugin::pausePhysics,this,_1,_2),
-                                                          ros::VoidPtr(), &gazebo_queue_);
-  pause_physics_service_ = nh_->advertiseService(pause_physics_aso);
-
-  // Advertise more services on the custom queue
-  std::string unpause_physics_service_name("unpause_physics");
-  ros::AdvertiseServiceOptions unpause_physics_aso =
-    ros::AdvertiseServiceOptions::create<std_srvs::Empty>(
-                                                          unpause_physics_service_name,
-                                                          boost::bind(&GazeboRosApiPlugin::unpausePhysics,this,_1,_2),
-                                                          ros::VoidPtr(), &gazebo_queue_);
-  unpause_physics_service_ = nh_->advertiseService(unpause_physics_aso);
->>>>>>> 58c61b46f5f7febd323c872326a309c8d3bcef39
-
-  // Advertise more services on the custom queue
   std::string apply_body_wrench_service_name("apply_body_wrench");
   ros::AdvertiseServiceOptions apply_body_wrench_aso =
     ros::AdvertiseServiceOptions::create<gazebo_msgs::ApplyBodyWrench>(

@@ -251,14 +251,6 @@ private:
   ros::ServiceServer set_joint_properties_service_;
   ros::ServiceServer apply_joint_effort_service_;
   ros::ServiceServer set_model_configuration_service_;
-<<<<<<< HEAD
-  ros::ServiceServer set_link_state_service_;
-=======
-  ros::ServiceServer reset_simulation_service_;
-  ros::ServiceServer reset_world_service_;
-  ros::ServiceServer pause_physics_service_;
-  ros::ServiceServer unpause_physics_service_;
->>>>>>> 58c61b46f5f7febd323c872326a309c8d3bcef39
   ros::ServiceServer clear_joint_forces_service_;
   ros::ServiceServer clear_body_wrenches_service_;
   ros::Publisher     pub_link_states_;
