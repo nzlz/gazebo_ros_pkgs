@@ -26,7 +26,7 @@ class GazeboRosPropertiesPrivate;
 
 /// TODO
 	
-class GazeboRosProperties : public gazebo::SystemPlugin
+class GazeboRosProperties : public gazebo::WorldPlugin
 {
 public:
   /// Constructor
@@ -36,7 +36,7 @@ public:
   virtual ~GazeboRosProperties();
 
   // Documentation inherited
-  void Load(int argc, char ** argv) override;
+  void Load(gazebo::physics::WorldPtr _world, sdf::ElementPtr _sdf) override;
 
 private:
   std::unique_ptr<GazeboRosPropertiesPrivate> impl_;

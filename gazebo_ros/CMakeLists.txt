@@ -78,9 +78,9 @@ ament_export_libraries(gazebo_ros_factory)
 
 # gazebo_ros_properties
 add_library(gazebo_ros_properties SHARED
-  src/gazebo_ros_state.cpp
+  src/gazebo_ros_properties.cpp
 )
-ament_target_dependencies(gazebo_ros_state
+ament_target_dependencies(gazebo_ros_properties
   "rclcpp"
   "gazebo_dev"
   "gazebo_msgs"

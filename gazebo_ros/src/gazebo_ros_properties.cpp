@@ -19,16 +19,17 @@
 #include <gazebo/physics/Link.hh>
 #include <gazebo/physics/Model.hh>
 #include <gazebo/physics/World.hh>
-#include <gazebo_msgs/srv/GetWorldProperties.hpp>
-#include <gazebo_msgs/srv/GetModelProperties.hpp>
-#include <gazebo_msgs/srv/GetJointProperties.hpp>
-#include <gazebo_msgs/srv/GetLinkProperties.hpp>
-#include <gazebo_msgs/srv/GetLightProperties.hpp>
-#include <gazebo_msgs/srv/GetPhysicsProperties.hpp>
-#include <gazebo_msgs/srv/SetJointProperties.hpp>
-#include <gazebo_msgs/srv/SetLinkProperties.hpp>
-#include <gazebo_msgs/srv/SetLightProperties.hpp>
-#include <gazebo_msgs/srv/SetPhysicsProperties.hpp>
+#include <gazebo/physics/Collision.hh>
+#include <gazebo_msgs/srv/get_world_properties.hpp>
+#include <gazebo_msgs/srv/get_model_properties.hpp>
+#include <gazebo_msgs/srv/get_joint_properties.hpp>
+#include <gazebo_msgs/srv/get_link_properties.hpp>
+#include <gazebo_msgs/srv/get_light_properties.hpp>
+#include <gazebo_msgs/srv/get_physics_properties.hpp>
+#include <gazebo_msgs/srv/set_joint_properties.hpp>
+#include <gazebo_msgs/srv/set_link_properties.hpp>
+#include <gazebo_msgs/srv/set_light_properties.hpp>
+#include <gazebo_msgs/srv/set_physics_properties.hpp>
 #include <gazebo_ros/node.hpp>
 
 #include <memory>
@@ -45,70 +46,70 @@ public:
   /// \brief Callback for get world properties service.
   /// \param[in] req Request
   /// \param[out] res Response
-  void getWorldProperties(
+  void GetWorldProperties(
   	gazebo_msgs::srv::GetWorldProperties::Request::SharedPtr _req,
   	gazebo_msgs::srv::GetWorldProperties::Response::SharedPtr _res);
 
   /// \brief Callback for get model properties service.
   /// \param[in] req Request
   /// \param[out] res Response
-  void getModelProperties(
+  void GetModelProperties(
   	gazebo_msgs::srv::GetModelProperties::Request::SharedPtr _req,
   	gazebo_msgs::srv::GetModelProperties::Response::SharedPtr _res);
 
   /// \brief Callback for get joint properties service.
   /// \param[in] req Request
   /// \param[out] res Response
-  void getJointProperties(
+  void GetJointProperties(
   	gazebo_msgs::srv::GetJointProperties::Request::SharedPtr _req,
   	gazebo_msgs::srv::GetJointProperties::Response::SharedPtr _res);
 
   /// \brief Callback for get link properties service.
   /// \param[in] req Request
   /// \param[out] res Response
-  void getLinkProperties(
+  void GetLinkProperties(
   	gazebo_msgs::srv::GetLinkProperties::Request::SharedPtr _req,
   	gazebo_msgs::srv::GetLinkProperties::Response::SharedPtr _res);
 
   /// \brief Callback for get light properties service.
   /// \param[in] req Request
   /// \param[out] res Response
-  void getLightProperties(
+  void GetLightProperties(
   	gazebo_msgs::srv::GetLightProperties::Request::SharedPtr _req,
   	gazebo_msgs::srv::GetLightProperties::Response::SharedPtr _res);
 
   /// \brief Callback for get physics properties service.
   /// \param[in] req Request
   /// \param[out] res Response
-  void getPhysicsProperties(
+  void GetPhysicsProperties(
   	gazebo_msgs::srv::GetPhysicsProperties::Request::SharedPtr _req,
   	gazebo_msgs::srv::GetPhysicsProperties::Response::SharedPtr _res);
 
   /// \brief Callback for set joint properties service.
   /// \param[in] req Request
   /// \param[out] res Response
-  void setJointProperties(
-  	gazebo_msgs::srv:SetJointProperties::Request::SharedPtr _req,
-  	gazebo_msgs::srv:SetJointProperties::Response::SharedPtr _res);
+  void SetJointProperties(
+  	gazebo_msgs::srv::SetJointProperties::Request::SharedPtr _req,
+  	gazebo_msgs::srv::SetJointProperties::Response::SharedPtr _res);
 
   /// \brief Callback for set link properties service.
   /// \param[in] req Request
   /// \param[out] res Response
-  void setLinkProperties(
+  void SetLinkProperties(
   	gazebo_msgs::srv::SetLinkProperties::Request::SharedPtr _req,
   	gazebo_msgs::srv::SetLinkProperties::Response::SharedPtr _res);
 
   /// \brief Callback for set light properties service.
   /// \param[in] req Request
   /// \param[out] res Response
-  void setLightProperties(
+  void SetLightProperties(
   	gazebo_msgs::srv::SetLightProperties::Request::SharedPtr _req,
   	gazebo_msgs::srv::SetLightProperties::Response::SharedPtr _res);
 
   /// \brief Callback for set physics properties service.
   /// \param[in] req Request
   /// \param[out] res Response
-  void setPhysicsProperties(
+  void SetPhysicsProperties(
   	gazebo_msgs::srv::SetPhysicsProperties::Request::SharedPtr _req,
   	gazebo_msgs::srv::SetPhysicsProperties::Response::SharedPtr _res);
 
@@ -124,8 +125,8 @@ public:
   /// \brief ROS service to handle requests for model properties.
   rclcpp::Service<gazebo_msgs::srv::GetModelProperties>::SharedPtr get_model_properties_service_;
 
-  /// \brief ROS service to handle requests for join properties.
-  rclcpp::Service<gazebo_msgs::srv::GetJointProperties>::SharedPtr get_join_properties_service_;
+  /// \brief ROS service to handle requests for joint properties.
+  rclcpp::Service<gazebo_msgs::srv::GetJointProperties>::SharedPtr get_joint_properties_service_;
 
   /// \brief ROS service to handle requests for link properties.
   rclcpp::Service<gazebo_msgs::srv::GetLinkProperties>::SharedPtr get_link_properties_service_;
@@ -190,11 +191,11 @@ void GazeboRosProperties::Load(gazebo::physics::WorldPtr _world, sdf::ElementPtr
     "get_light_properties", std::bind(&GazeboRosPropertiesPrivate::GetLightProperties, impl_.get(),
     std::placeholders::_1, std::placeholders::_2));
 
-  impl_->get_physics_properties_service_ =
+/*  impl_->get_physics_properties_service_ =
     impl_->ros_node_->create_service<gazebo_msgs::srv::GetPhysicsProperties>(
     "get_physics_properties", std::bind(&GazeboRosPropertiesPrivate::GetPhysicsProperties, impl_.get(),
     std::placeholders::_1, std::placeholders::_2));
-
+*/
   impl_->set_joint_properties_service_ =
     impl_->ros_node_->create_service<gazebo_msgs::srv::SetJointProperties>(
     "set_joint_properties", std::bind(&GazeboRosPropertiesPrivate::SetJointProperties, impl_.get(),
@@ -210,14 +211,16 @@ void GazeboRosProperties::Load(gazebo::physics::WorldPtr _world, sdf::ElementPtr
     "set_light_properties", std::bind(&GazeboRosPropertiesPrivate::SetLightProperties, impl_.get(),
     std::placeholders::_1, std::placeholders::_2));
 
-  impl_->set_physics_properties_service_ =
+/*  impl_->set_physics_properties_service_ =
     impl_->ros_node_->create_service<gazebo_msgs::srv::SetPhysicsProperties>(
     "set_physics_properties", std::bind(&GazeboRosPropertiesPrivate::SetPhysicsProperties, impl_.get(),
     std::placeholders::_1, std::placeholders::_2));
+*/
 }
 
-void GazeboRosProperties::getWorldProperties(gazebo_msgs::GetWorldProperties::Request::SharedPtr _req,
-                                            gazebo_msgs::GetWorldProperties::Response::SharedPtr _res)
+void GazeboRosPropertiesPrivate::GetWorldProperties(
+	gazebo_msgs::srv::GetWorldProperties::Request::SharedPtr _req,
+	gazebo_msgs::srv::GetWorldProperties::Response::SharedPtr _res)
 {
   _res->model_names.clear();
 #if GAZEBO_MAJOR_VERSION >= 8
@@ -233,11 +236,11 @@ void GazeboRosProperties::getWorldProperties(gazebo_msgs::GetWorldProperties::Re
   _res->rendering_enabled = true; //world->GetRenderEngineEnabled();
   _res->success = true;
   _res->status_message = "GetWorldProperties: got properties";
-  return true;
 }
 
-void GazeboRosProperties::getModelProperties(gazebo_msgs::GetModelProperties::Request::SharedPtr _req,
-                                            gazebo_msgs::GetModelProperties::Response::SharedPtr _res)
+void GazeboRosPropertiesPrivate::GetModelProperties(
+	gazebo_msgs::srv::GetModelProperties::Request::SharedPtr _req,
+	gazebo_msgs::srv::GetModelProperties::Response::SharedPtr _res)
 {
 #if GAZEBO_MAJOR_VERSION >= 8
   gazebo::physics::ModelPtr model = world_->ModelByName(_req->model_name);
@@ -246,10 +249,9 @@ void GazeboRosProperties::getModelProperties(gazebo_msgs::GetModelProperties::Re
 #endif
   if (!model)
   {
-    ROS_ERROR_NAMED("api_plugin", "GetModelProperties: model [%s] does not exist",_req->model_name.c_str());
+    RCLCPP_ERROR(ros_node_->get_logger(), "GetModelProperties: model [%s] does not exist",_req->model_name.c_str());
     _res->success = false;
     _res->status_message = "GetModelProperties: model does not exist";
-    return true;
   }
   else
   {
@@ -297,13 +299,12 @@ void GazeboRosProperties::getModelProperties(gazebo_msgs::GetModelProperties::Re
 
     _res->success = true;
     _res->status_message = "GetModelProperties: got properties";
-    return true;
   }
-  return true;
 }
 
-void GazeboRosProperties::getJointProperties(gazebo_msgs::GetJointProperties::Request::SharedPtr _req,
-                                            gazebo_msgs::GetJointProperties::Response::SharedPtr _res)
+void GazeboRosPropertiesPrivate::GetJointProperties(
+	gazebo_msgs::srv::GetJointProperties::Request::SharedPtr _req,
+	gazebo_msgs::srv::GetJointProperties::Response::SharedPtr _res)
 {
   gazebo::physics::JointPtr joint;
 #if GAZEBO_MAJOR_VERSION >= 8
@@ -322,7 +323,6 @@ void GazeboRosProperties::getJointProperties(gazebo_msgs::GetJointProperties::Re
   {
     _res->success = false;
     _res->status_message = "GetJointProperties: joint not found";
-    return true;
   }
   else
   {
@@ -344,12 +344,12 @@ void GazeboRosProperties::getJointProperties(gazebo_msgs::GetJointProperties::Re
 
     _res->success = true;
     _res->status_message = "GetJointProperties: got properties";
-    return true;
   }
 }
 
-void GazeboRosProperties::getLinkProperties(gazebo_msgs::GetLinkProperties::Request::SharedPtr _req,
-                                           gazebo_msgs::GetLinkProperties::Response::SharedPtr _res)
+void GazeboRosPropertiesPrivate::GetLinkProperties(
+	gazebo_msgs::srv::GetLinkProperties::Request::SharedPtr _req,
+	gazebo_msgs::srv::GetLinkProperties::Response::SharedPtr _res)
 {
 #if GAZEBO_MAJOR_VERSION >= 8
   gazebo::physics::LinkPtr body = boost::dynamic_pointer_cast<gazebo::physics::Link>(world_->EntityByName(_req->link_name));
@@ -360,7 +360,6 @@ void GazeboRosProperties::getLinkProperties(gazebo_msgs::GetLinkProperties::Requ
   {
     _res->success = false;
     _res->status_message = "GetLinkProperties: link not found, did you forget to scope the link by model name?";
-    return true;
   }
   else
   {
@@ -402,12 +401,12 @@ void GazeboRosProperties::getLinkProperties(gazebo_msgs::GetLinkProperties::Requ
 
     _res->success = true;
     _res->status_message = "GetLinkProperties: got properties";
-    return true;
   }
 }
 
-void GazeboRosProperties::getLightProperties(gazebo_msgs::GetLightProperties::Request::SharedPtr _req,
-                                               gazebo_msgs::GetLightProperties::Response::SharedPtr _res)
+void GazeboRosPropertiesPrivate::GetLightProperties(
+	gazebo_msgs::srv::GetLightProperties::Request::SharedPtr _req,
+	gazebo_msgs::srv::GetLightProperties::Response::SharedPtr _res)
 {
 #if GAZEBO_MAJOR_VERSION >= 8
   gazebo::physics::LightPtr phy_light = world_->LightByName(_req->light_name);
@@ -436,12 +435,11 @@ void GazeboRosProperties::getLightProperties(gazebo_msgs::GetLightProperties::Re
 
     _res->success = true;
   }
-
-  return true;
 }
 
-void GazeboRosProperties::getPhysicsProperties(gazebo_msgs::GetPhysicsProperties::Request::SharedPtr _req,
-                                              gazebo_msgs::GetPhysicsProperties::Response::SharedPtr _res)
+/*void GazeboRosPropertiesPrivate::GetPhysicsProperties(
+	gazebo_msgs::srv::GetPhysicsProperties::Request::SharedPtr _req,
+	gazebo_msgs::srv::GetPhysicsProperties::Response::SharedPtr _res)
 {
   // supported updates
 #if GAZEBO_MAJOR_VERSION >= 8
@@ -485,15 +483,15 @@ void GazeboRosProperties::getPhysicsProperties(gazebo_msgs::GetPhysicsProperties
   else
   {
     /// \TODO: add support for simbody, dart and bullet physics properties.
-    ROS_ERROR_NAMED("api_plugin", "ROS get_physics_properties service call does not yet support physics engine [%s].", pe->GetType().c_str());
+    RCLCPP_ERROR(ros_node_->get_logger(), "ROS get_physics_properties service call does not yet support physics engine [%s].", pe->GetType().c_str());
     _res->success = false;
     _res->status_message = "Physics engine [" + pe->GetType() + "]: get_physics_properties not supported.";
   }
-  return _res->success;
 }
-
-void GazeboRosProperties::setJointProperties(gazebo_msgs::SetJointProperties::Request::SharedPtr _req,
-                                            gazebo_msgs::SetJointProperties::Response::SharedPtr _res)
+*/
+void GazeboRosPropertiesPrivate::SetJointProperties(
+	gazebo_msgs::srv::SetJointProperties::Request::SharedPtr _req,
+	gazebo_msgs::srv::SetJointProperties::Response::SharedPtr _res)
 {
   /// @todo: current settings only allows for setting of 1DOF joints (e.g. HingeJoint and SliderJoint) correctly.
   gazebo::physics::JointPtr joint;
@@ -513,16 +511,15 @@ void GazeboRosProperties::setJointProperties(gazebo_msgs::SetJointProperties::Re
   {
     _res->success = false;
     _res->status_message = "SetJointProperties: joint not found";
-    return true;
   }
   else
   {
     for(unsigned int i=0;i< _req->ode_joint_config.damping.size();i++)
       joint->SetDamping(i,_req->ode_joint_config.damping[i]);
-    for(unsigned int i=0;i< _req->ode_joint_config.hiStop.size();i++)
-      joint->SetParam("hi_stop",i,_req->ode_joint_config.hiStop[i]);
-    for(unsigned int i=0;i< _req->ode_joint_config.loStop.size();i++)
-      joint->SetParam("lo_stop",i,_req->ode_joint_config.loStop[i]);
+    for(unsigned int i=0;i< _req->ode_joint_config.hi_stop.size();i++)
+      joint->SetParam("hi_stop",i,_req->ode_joint_config.hi_stop[i]);
+    for(unsigned int i=0;i< _req->ode_joint_config.lo_stop.size();i++)
+      joint->SetParam("lo_stop",i,_req->ode_joint_config.lo_stop[i]);
     for(unsigned int i=0;i< _req->ode_joint_config.erp.size();i++)
       joint->SetParam("erp",i,_req->ode_joint_config.erp[i]);
     for(unsigned int i=0;i< _req->ode_joint_config.cfm.size();i++)
@@ -540,12 +537,12 @@ void GazeboRosProperties::setJointProperties(gazebo_msgs::SetJointProperties::Re
 
     _res->success = true;
     _res->status_message = "SetJointProperties: properties set";
-    return true;
   }
 }
 
-void GazeboRosProperties::setLinkProperties(gazebo_msgs::SetLinkProperties::Request::SharedPtr _req,
-                                           gazebo_msgs::SetLinkProperties::Response::SharedPtr _res)
+void GazeboRosPropertiesPrivate::SetLinkProperties(
+	gazebo_msgs::srv::SetLinkProperties::Request::SharedPtr _req,
+	gazebo_msgs::srv::SetLinkProperties::Response::SharedPtr _res)
 {
 #if GAZEBO_MAJOR_VERSION >= 8
   gazebo::physics::LinkPtr body = boost::dynamic_pointer_cast<gazebo::physics::Link>(world_->EntityByName(_req->link_name));
@@ -556,7 +553,6 @@ void GazeboRosProperties::setLinkProperties(gazebo_msgs::SetLinkProperties::Requ
   {
     _res->success = false;
     _res->status_message = "SetLinkProperties: link not found, did you forget to scope the link by model name?";
-    return true;
   }
   else
   {
@@ -570,12 +566,12 @@ void GazeboRosProperties::setLinkProperties(gazebo_msgs::SetLinkProperties::Requ
     // @todo: mass change unverified
     _res->success = true;
     _res->status_message = "SetLinkProperties: properties set";
-    return true;
   }
 }
 
-void GazeboRosProperties::setLightProperties(gazebo_msgs::SetLightProperties::Request::SharedPtr _req,
-                                               gazebo_msgs::SetLightProperties::Response::SharedPtr _res)
+void GazeboRosPropertiesPrivate::SetLightProperties(
+	gazebo_msgs::srv::SetLightProperties::Request::SharedPtr _req,
+	gazebo_msgs::srv::SetLightProperties::Response::SharedPtr _res)
 {
 #if GAZEBO_MAJOR_VERSION >= 8
   gazebo::physics::LightPtr phy_light = world_->LightByName(_req->light_name);
@@ -603,16 +599,17 @@ void GazeboRosProperties::setLightProperties(gazebo_msgs::SetLightProperties::Re
     light.set_attenuation_linear(_req->attenuation_linear);
     light.set_attenuation_quadratic(_req->attenuation_quadratic);
 
-    light_modify_pub_->Publish(light, true);
+    //TODO, is this the correct way to do this?
+    auto light_modify_pub_ = ros_node_->create_publisher<gazebo::msgs::Light>("~/light/modify");
+    light_modify_pub_->publish(light);
 
     _res->success = true;
   }
-
-  return true;
 }
 
-void GazeboRosProperties::setPhysicsProperties(gazebo_msgs::SetPhysicsProperties::Request::SharedPtr _req,
-                                              gazebo_msgs::SetPhysicsProperties::Response::SharedPtr _res)
+/*void GazeboRosPropertiesPrivate::SetPhysicsProperties(
+	gazebo_msgs::srv::SetPhysicsProperties::Request::SharedPtr _req,
+	gazebo_msgs::srv::SetPhysicsProperties::Response::SharedPtr _res)
 {
   // pause simulation if requested
   bool is_paused = world_->IsPaused();
@@ -651,12 +648,11 @@ void GazeboRosProperties::setPhysicsProperties(gazebo_msgs::SetPhysicsProperties
   else
   {
     /// \TODO: add support for simbody, dart and bullet physics properties.
-    ROS_ERROR_NAMED("api_plugin", "ROS set_physics_properties service call does not yet support physics engine [%s].", pe->GetType().c_str());
+    RCLCPP_ERROR(ros_node_->get_logger(), "ROS set_physics_properties service call does not yet support physics engine [%s].", pe->GetType().c_str());
     _res->success = false;
     _res->status_message = "Physics engine [" + pe->GetType() + "]: set_physics_properties not supported.";
   }
-  return _res->success;
-}
+}*/
 
 GZ_REGISTER_WORLD_PLUGIN(GazeboRosProperties)
 
