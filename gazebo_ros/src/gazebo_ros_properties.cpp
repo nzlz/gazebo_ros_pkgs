@@ -223,15 +223,9 @@ void GazeboRosPropertiesPrivate::GetWorldProperties(
 	gazebo_msgs::srv::GetWorldProperties::Response::SharedPtr _res)
 {
   _res->model_names.clear();
-#if GAZEBO_MAJOR_VERSION >= 8
   _res->sim_time = world_->SimTime().Double();
   for (unsigned int i = 0; i < world_->ModelCount(); i ++)
     _res->model_names.push_back(world_->ModelByIndex(i)->GetName());
-#else
-  _res->sim_time = world_->GetSimTime().Double();
-  for (unsigned int i = 0; i < world_->GetModelCount(); i ++)
-    _res->model_names.push_back(world_->GetModel(i)->GetName());
-#endif
   gzerr << "disablign rendering has not been implemented, rendering is always enabled\n";
   _res->rendering_enabled = true; //world->GetRenderEngineEnabled();
   _res->success = true;
@@ -242,11 +236,7 @@ void GazeboRosPropertiesPrivate::GetModelProperties(
 	gazebo_msgs::srv::GetModelProperties::Request::SharedPtr _req,
 	gazebo_msgs::srv::GetModelProperties::Response::SharedPtr _res)
 {
-#if GAZEBO_MAJOR_VERSION >= 8
   gazebo::physics::ModelPtr model = world_->ModelByName(_req->model_name);
-#else
-  gazebo::physics::ModelPtr model = world_->GetModel(_req->model_name);
-#endif
   if (!model)
   {
     RCLCPP_ERROR(ros_node_->get_logger(), "GetModelProperties: model [%s] does not exist",_req->model_name.c_str());
@@ -307,15 +297,9 @@ void GazeboRosPropertiesPrivate::GetJointProperties(
 	gazebo_msgs::srv::GetJointProperties::Response::SharedPtr _res)
 {
   gazebo::physics::JointPtr joint;
-#if GAZEBO_MAJOR_VERSION >= 8
   for (unsigned int i = 0; i < world_->ModelCount(); i ++)
   {
     joint = world_->ModelByIndex(i)->GetJoint(_req->joint_name);
-#else
-  for (unsigned int i = 0; i < world_->GetModelCount(); i ++)
-  {
-    joint = world_->GetModel(i)->GetJoint(_req->joint_name);
-#endif
     if (joint) break;
   }
 
@@ -333,11 +317,7 @@ void GazeboRosPropertiesPrivate::GetJointProperties(
     //_res->damping.push_back(joint->GetDamping(0));
 
     _res->position.clear();
-#if GAZEBO_MAJOR_VERSION >= 8
     _res->position.push_back(joint->Position(0));
-#else
-    _res->position.push_back(joint->GetAngle(0).Radian());
-#endif
 
     _res->rate.clear(); // use GetVelocity(i)
     _res->rate.push_back(joint->GetVelocity(0));
@@ -351,11 +331,7 @@ void GazeboRosPropertiesPrivate::GetLinkProperties(
 	gazebo_msgs::srv::GetLinkProperties::Request::SharedPtr _req,
 	gazebo_msgs::srv::GetLinkProperties::Response::SharedPtr _res)
 {
-#if GAZEBO_MAJOR_VERSION >= 8
   gazebo::physics::LinkPtr body = boost::dynamic_pointer_cast<gazebo::physics::Link>(world_->EntityByName(_req->link_name));
-#else
-  gazebo::physics::LinkPtr body = boost::dynamic_pointer_cast<gazebo::physics::Link>(world_->GetEntity(_req->link_name));
-#endif
   if (!body)
   {
     _res->success = false;
@@ -368,7 +344,6 @@ void GazeboRosPropertiesPrivate::GetLinkProperties(
 
     gazebo::physics::InertialPtr inertia = body->GetInertial();
 
-#if GAZEBO_MAJOR_VERSION >= 8
     _res->mass = body->GetInertial()->Mass();
 
     _res->ixx = inertia->IXX();
@@ -379,18 +354,7 @@ void GazeboRosPropertiesPrivate::GetLinkProperties(
     _res->iyz = inertia->IYZ();
 
     ignition::math::Vector3d com = body->GetInertial()->CoG();
-#else
-    _res->mass = body->GetInertial()->GetMass();
 
-    _res->ixx = inertia->GetIXX();
-    _res->iyy = inertia->GetIYY();
-    _res->izz = inertia->GetIZZ();
-    _res->ixy = inertia->GetIXY();
-    _res->ixz = inertia->GetIXZ();
-    _res->iyz = inertia->GetIYZ();
-
-    ignition::math::Vector3d com = body->GetInertial()->GetCoG().Ign();
-#endif
     _res->com.position.x = com.X();
     _res->com.position.y = com.Y();
     _res->com.position.z = com.Z();
@@ -408,12 +372,7 @@ void GazeboRosPropertiesPrivate::GetLightProperties(
 	gazebo_msgs::srv::GetLightProperties::Request::SharedPtr _req,
 	gazebo_msgs::srv::GetLightProperties::Response::SharedPtr _res)
 {
-#if GAZEBO_MAJOR_VERSION >= 8
   gazebo::physics::LightPtr phy_light = world_->LightByName(_req->light_name);
-#else
-  gazebo::physics::LightPtr phy_light = world_->Light(_req->light_name);
-#endif
-
   if (phy_light == NULL)
   {
       _res->success = false;
@@ -495,15 +454,9 @@ void GazeboRosPropertiesPrivate::SetJointProperties(
 {
   /// @todo: current settings only allows for setting of 1DOF joints (e.g. HingeJoint and SliderJoint) correctly.
   gazebo::physics::JointPtr joint;
-#if GAZEBO_MAJOR_VERSION >= 8
   for (unsigned int i = 0; i < world_->ModelCount(); i ++)
   {
     joint = world_->ModelByIndex(i)->GetJoint(_req->joint_name);
-#else
-  for (unsigned int i = 0; i < world_->GetModelCount(); i ++)
-  {
-    joint = world_->GetModel(i)->GetJoint(_req->joint_name);
-#endif
     if (joint) break;
   }
 
@@ -544,11 +497,7 @@ void GazeboRosPropertiesPrivate::SetLinkProperties(
 	gazebo_msgs::srv::SetLinkProperties::Request::SharedPtr _req,
 	gazebo_msgs::srv::SetLinkProperties::Response::SharedPtr _res)
 {
-#if GAZEBO_MAJOR_VERSION >= 8
   gazebo::physics::LinkPtr body = boost::dynamic_pointer_cast<gazebo::physics::Link>(world_->EntityByName(_req->link_name));
-#else
-  gazebo::physics::LinkPtr body = boost::dynamic_pointer_cast<gazebo::physics::Link>(world_->GetEntity(_req->link_name));
-#endif
   if (!body)
   {
     _res->success = false;
@@ -573,12 +522,7 @@ void GazeboRosPropertiesPrivate::SetLightProperties(
 	gazebo_msgs::srv::SetLightProperties::Request::SharedPtr _req,
 	gazebo_msgs::srv::SetLightProperties::Response::SharedPtr _res)
 {
-#if GAZEBO_MAJOR_VERSION >= 8
   gazebo::physics::LightPtr phy_light = world_->LightByName(_req->light_name);
-#else
-  gazebo::physics::LightPtr phy_light = world_->Light(_req->light_name);
-#endif
-
   if (phy_light == NULL)
   {
     _res->success = false;
