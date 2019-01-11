@@ -43,13 +43,6 @@ class GazeboRosPropertiesPrivate
 {
 public:
 
-/*  /// \brief Callback for get world properties service.
-  /// \param[in] req Request
-  /// \param[out] res Response
-  void GetWorldProperties(
-    gazebo_msgs::srv::GetWorldProperties::Request::SharedPtr _req,
-    gazebo_msgs::srv::GetWorldProperties::Response::SharedPtr _res);
-*/
   /// \brief Callback for get model properties service.
   /// \param[in] req Request
   /// \param[out] res Response
@@ -78,13 +71,6 @@ public:
     gazebo_msgs::srv::GetLightProperties::Request::SharedPtr _req,
     gazebo_msgs::srv::GetLightProperties::Response::SharedPtr _res);
 
-  /// \brief Callback for get physics properties service.
-  /// \param[in] req Request
-  /// \param[out] res Response
-  void GetPhysicsProperties(
-    gazebo_msgs::srv::GetPhysicsProperties::Request::SharedPtr _req,
-    gazebo_msgs::srv::GetPhysicsProperties::Response::SharedPtr _res);
-
   /// \brief Callback for set joint properties service.
   /// \param[in] req Request
   /// \param[out] res Response
@@ -106,22 +92,12 @@ public:
     gazebo_msgs::srv::SetLightProperties::Request::SharedPtr _req,
     gazebo_msgs::srv::SetLightProperties::Response::SharedPtr _res);
 
-  /// \brief Callback for set physics properties service.
-  /// \param[in] req Request
-  /// \param[out] res Response
-  void SetPhysicsProperties(
-    gazebo_msgs::srv::SetPhysicsProperties::Request::SharedPtr _req,
-    gazebo_msgs::srv::SetPhysicsProperties::Response::SharedPtr _res);
-
   /// \brief World pointer from Gazebo.
   gazebo::physics::WorldPtr world_;
 
   /// ROS node for communication, managed by gazebo_ros.
   gazebo_ros::Node::SharedPtr ros_node_;
 
-/*  /// \brief ROS service to handle requests for world properties.
-  rclcpp::Service<gazebo_msgs::srv::GetWorldProperties>::SharedPtr get_world_properties_service_;
-*/
   /// \brief ROS service to handle requests for model properties.
   rclcpp::Service<gazebo_msgs::srv::GetModelProperties>::SharedPtr get_model_properties_service_;
 
@@ -134,9 +110,6 @@ public:
   /// \brief ROS service to handle requests for light properties.
   rclcpp::Service<gazebo_msgs::srv::GetLightProperties>::SharedPtr get_light_properties_service_;
 
-  /// \brief ROS service to handle requests for physics properties.
-  rclcpp::Service<gazebo_msgs::srv::GetPhysicsProperties>::SharedPtr get_physics_properties_service_;
-
   /// \brief ROS service to handle requests to set joint properties.
   rclcpp::Service<gazebo_msgs::srv::SetJointProperties>::SharedPtr set_joint_properties_service_;
 
@@ -145,9 +118,6 @@ public:
 
   /// \brief ROS service to handle requests to set light properties.
   rclcpp::Service<gazebo_msgs::srv::SetLightProperties>::SharedPtr set_light_properties_service_;
-
-  /// \brief ROS service to handle requests to set physics properties.
-  rclcpp::Service<gazebo_msgs::srv::SetPhysicsProperties>::SharedPtr set_physics_properties_service_;
 
 };
 
@@ -166,11 +136,6 @@ void GazeboRosProperties::Load(gazebo::physics::WorldPtr _world, sdf::ElementPtr
 
   impl_->ros_node_ = gazebo_ros::Node::Get(_sdf);
 
-/*  impl_->get_world_properties_service_ =
-    impl_->ros_node_->create_service<gazebo_msgs::srv::GetWorldProperties>(
-    "get_world_properties", std::bind(&GazeboRosPropertiesPrivate::GetWorldProperties, impl_.get(),
-    std::placeholders::_1, std::placeholders::_2));
-*/
   impl_->get_model_properties_service_ =
     impl_->ros_node_->create_service<gazebo_msgs::srv::GetModelProperties>(
     "get_model_properties", std::bind(&GazeboRosPropertiesPrivate::GetModelProperties, impl_.get(),
@@ -191,11 +156,6 @@ void GazeboRosProperties::Load(gazebo::physics::WorldPtr _world, sdf::ElementPtr
     "get_light_properties", std::bind(&GazeboRosPropertiesPrivate::GetLightProperties, impl_.get(),
     std::placeholders::_1, std::placeholders::_2));
 
-/*  impl_->get_physics_properties_service_ =
-    impl_->ros_node_->create_service<gazebo_msgs::srv::GetPhysicsProperties>(
-    "get_physics_properties", std::bind(&GazeboRosPropertiesPrivate::GetPhysicsProperties, impl_.get(),
-    std::placeholders::_1, std::placeholders::_2));
-*/
   impl_->set_joint_properties_service_ =
     impl_->ros_node_->create_service<gazebo_msgs::srv::SetJointProperties>(
     "set_joint_properties", std::bind(&GazeboRosPropertiesPrivate::SetJointProperties, impl_.get(),
@@ -211,27 +171,8 @@ void GazeboRosProperties::Load(gazebo::physics::WorldPtr _world, sdf::ElementPtr
     "set_light_properties", std::bind(&GazeboRosPropertiesPrivate::SetLightProperties, impl_.get(),
     std::placeholders::_1, std::placeholders::_2));
 
-/*  impl_->set_physics_properties_service_ =
-    impl_->ros_node_->create_service<gazebo_msgs::srv::SetPhysicsProperties>(
-    "set_physics_properties", std::bind(&GazeboRosPropertiesPrivate::SetPhysicsProperties, impl_.get(),
-    std::placeholders::_1, std::placeholders::_2));
-*/
 }
 
-/*void GazeboRosPropertiesPrivate::GetWorldProperties(
-    gazebo_msgs::srv::GetWorldProperties::Request::SharedPtr _req,
-    gazebo_msgs::srv::GetWorldProperties::Response::SharedPtr _res)
-{
-  _res->model_names.clear();
-  _res->sim_time = world_->SimTime().Double();
-  for (unsigned int i = 0; i < world_->ModelCount(); i ++)
-    _res->model_names.push_back(world_->ModelByIndex(i)->GetName());
-  gzerr << "disablign rendering has not been implemented, rendering is always enabled\n";
-  _res->rendering_enabled = true; //world->GetRenderEngineEnabled();
-  _res->success = true;
-  _res->status_message = "GetWorldProperties: got properties";
-}
-*/
 void GazeboRosPropertiesPrivate::GetModelProperties(
     gazebo_msgs::srv::GetModelProperties::Request::SharedPtr _req,
     gazebo_msgs::srv::GetModelProperties::Response::SharedPtr _res)
@@ -396,58 +337,6 @@ void GazeboRosPropertiesPrivate::GetLightProperties(
   }
 }
 
-/*void GazeboRosPropertiesPrivate::GetPhysicsProperties(
-    gazebo_msgs::srv::GetPhysicsProperties::Request::SharedPtr _req,
-    gazebo_msgs::srv::GetPhysicsProperties::Response::SharedPtr _res)
-{
-  // supported updates
-#if GAZEBO_MAJOR_VERSION >= 8
-  gazebo::physics::PhysicsEnginePtr pe = (world_->Physics());
-#else
-  gazebo::physics::PhysicsEnginePtr pe = (world_->GetPhysicsEngine());
-#endif
-  _res->time_step = pe->GetMaxStepSize();
-  _res->pause = world_->IsPaused();
-  _res->max_update_rate = pe->GetRealTimeUpdateRate();
-  ignition::math::Vector3d gravity = world_->Gravity();
-  _res->gravity.x = gravity.X();
-  _res->gravity.y = gravity.Y();
-  _res->gravity.z = gravity.Z();
-
-  // stuff only works in ODE right now
-  if (pe->GetType() == "ode")
-  {
-    _res->ode_config.auto_disable_bodies =
-      pe->GetAutoDisableFlag();
-    _res->ode_config.sor_pgs_precon_iters = boost::any_cast<int>(
-      pe->GetParam("precon_iters"));
-    _res->ode_config.sor_pgs_iters = boost::any_cast<int>(
-        pe->GetParam("iters"));
-    _res->ode_config.sor_pgs_w = boost::any_cast<double>(
-        pe->GetParam("sor"));
-    _res->ode_config.contact_surface_layer = boost::any_cast<double>(
-      pe->GetParam("contact_surface_layer"));
-    _res->ode_config.contact_max_correcting_vel = boost::any_cast<double>(
-      pe->GetParam("contact_max_correcting_vel"));
-    _res->ode_config.cfm = boost::any_cast<double>(
-        pe->GetParam("cfm"));
-    _res->ode_config.erp = boost::any_cast<double>(
-        pe->GetParam("erp"));
-    _res->ode_config.max_contacts = boost::any_cast<int>(
-      pe->GetParam("max_contacts"));
-
-    _res->success = true;
-    _res->status_message = "GetPhysicsProperties: got properties";
-  }
-  else
-  {
-    /// \TODO: add support for simbody, dart and bullet physics properties.
-    RCLCPP_ERROR(ros_node_->get_logger(), "ROS get_physics_properties service call does not yet support physics engine [%s].", pe->GetType().c_str());
-    _res->success = false;
-    _res->status_message = "Physics engine [" + pe->GetType() + "]: get_physics_properties not supported.";
-  }
-}
-*/
 void GazeboRosPropertiesPrivate::SetJointProperties(
     gazebo_msgs::srv::SetJointProperties::Request::SharedPtr _req,
     gazebo_msgs::srv::SetJointProperties::Response::SharedPtr _res)
@@ -550,53 +439,6 @@ void GazeboRosPropertiesPrivate::SetLightProperties(
     _res->success = true;
   }
 }
-
-/*void GazeboRosPropertiesPrivate::SetPhysicsProperties(
-    gazebo_msgs::srv::SetPhysicsProperties::Request::SharedPtr _req,
-    gazebo_msgs::srv::SetPhysicsProperties::Response::SharedPtr _res)
-{
-  // pause simulation if requested
-  bool is_paused = world_->IsPaused();
-  world_->SetPaused(true);
-  world_->SetGravity(ignition::math::Vector3d(_req->gravity.x,_req->gravity.y,_req->gravity.z));
-
-  // supported updates
-#if GAZEBO_MAJOR_VERSION >= 8
-  gazebo::physics::PhysicsEnginePtr pe = (world_->Physics());
-#else
-  gazebo::physics::PhysicsEnginePtr pe = (world_->GetPhysicsEngine());
-#endif
-  pe->SetMaxStepSize(_req->time_step);
-  pe->SetRealTimeUpdateRate(_req->max_update_rate);
-
-  if (pe->GetType() == "ode")
-  {
-    // stuff only works in ODE right now
-    pe->SetAutoDisableFlag(_req->ode_config.auto_disable_bodies);
-    pe->SetParam("precon_iters", int(_req->ode_config.sor_pgs_precon_iters));
-    pe->SetParam("iters", int(_req->ode_config.sor_pgs_iters));
-    pe->SetParam("sor", _req->ode_config.sor_pgs_w);
-    pe->SetParam("cfm", _req->ode_config.cfm);
-    pe->SetParam("erp", _req->ode_config.erp);
-    pe->SetParam("contact_surface_layer",
-        _req->ode_config.contact_surface_layer);
-    pe->SetParam("contact_max_correcting_vel",
-        _req->ode_config.contact_max_correcting_vel);
-    pe->SetParam("max_contacts", int(_req->ode_config.max_contacts));
-
-    world_->SetPaused(is_paused);
-
-    _res->success = true;
-    _res->status_message = "physics engine updated";
-  }
-  else
-  {
-    /// \TODO: add support for simbody, dart and bullet physics properties.
-    RCLCPP_ERROR(ros_node_->get_logger(), "ROS set_physics_properties service call does not yet support physics engine [%s].", pe->GetType().c_str());
-    _res->success = false;
-    _res->status_message = "Physics engine [" + pe->GetType() + "]: set_physics_properties not supported.";
-  }
-}*/
 
 GZ_REGISTER_WORLD_PLUGIN(GazeboRosProperties)
 
