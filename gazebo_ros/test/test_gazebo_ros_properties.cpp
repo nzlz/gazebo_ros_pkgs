@@ -25,6 +25,7 @@
 #include <gazebo_msgs/srv/set_light_properties.hpp>
 #include <gazebo_msgs/srv/set_physics_properties.hpp>
 
+#include <geometry_msgs/msg/pose.hpp>
 #include <gazebo_msgs/srv/spawn_entity.hpp>
 #include <gazebo_ros/conversions/geometry_msgs.hpp>
 #include <rclcpp/rclcpp.hpp>
@@ -40,34 +41,11 @@ public:
   // Documentation inherited
   void SetUp() override;
 
-/*  
-  EXAMPLE STATE
-/// Helper function to call get state service
-  void GetState(
-    const std::string & _entity,
-    const ignition::math::Pose3d & _pose,
-    const ignition::math::Vector3d & _lin_vel = ignition::math::Vector3d::Zero,
-    const ignition::math::Vector3d & _ang_vel = ignition::math::Vector3d::Zero);
-
-  /// Helper function to call set state service
-  void SetState(
-    const std::string & _entity,
-    const ignition::math::Pose3d & _pose,
-    const ignition::math::Vector3d & _lin_vel = ignition::math::Vector3d::Zero,
-    const ignition::math::Vector3d & _ang_vel = ignition::math::Vector3d::Zero);
-*/
 // NEW CODE
 
 
-  // Helper function to call get model properties. 
-  // Since there is no setter for the model properties, the xml of a model is given as input. 
-  // The given model xml will be spawned using the spawn_entity service.
-  void GetModelProperties(
-    const std::string & _name,
-    const std::string & _xml,
-    const std::string & _robot_namespace,
-    const ignition::math::Pose3d & _initial_pose,
-    const std::string & _reference_frame);
+  //TODO
+  void GetModelProperties();
 
   //TODO
   void GetJointProperties();
@@ -87,7 +65,6 @@ public:
   //TODO
   void SetLightProperties();
 
-// END NEW CODE
 
   gazebo::physics::WorldPtr world_;
   rclcpp::Node::SharedPtr node_;
@@ -145,40 +122,34 @@ void GazeboRosPropertiesTest::SetUp()
   EXPECT_TRUE(set_link_properties_client_->wait_for_service(std::chrono::seconds(1)));
 
   set_light_properties_client_ =
-    node_->create_client<gazebo_msgs::srv::SetLightProperties>("test/get_model_properties");
+    node_->create_client<gazebo_msgs::srv::SetLightProperties>("test/set_light_properties");
   ASSERT_NE(nullptr, set_light_properties_client_);
   EXPECT_TRUE(set_light_properties_client_->wait_for_service(std::chrono::seconds(1)));
 
 }
 
-/*
-GetModelProperties srv
-string model_name                    # name of Gazebo Model
----
-string parent_model_name             # parent model
-string canonical_body_name           # name of canonical body, body names are prefixed by model name, e.g. pr2::base_link
-string[] body_names                  # list of bodies, body names are prefixed by model name, e.g. pr2::base_link
-string[] geom_names                  # list of geoms
-string[] joint_names                 # list of joints attached to the model
-string[] child_model_names           # list of child models
-bool is_static                       # returns true if model is static
-bool success                         # return true if get successful
-string status_message                # comments if available*/
-void GazeboRosPropertiesTest::GetModelProperties(
-    const std::string & _name,
-    const std::string & _xml,
-    const std::string & _robot_namespace,
-    const ignition::math::Pose3d & _initial_pose,
-    const std::string & _reference_frame)
+/*void GazeboRosPropertiesTest::GetModelProperties(
+    const std::string & _name)
 {
 
   // Spawn a entity using the gazebo SpawnEntity service.
   auto spawn_request = std::make_shared<gazebo_msgs::srv::SpawnEntity::Request>();
-  spawn_request->model_name = _name;
-  spawn_request->xml = _xml;
-  spawn_request->robot_namespace = _robot_namespace;
-  spawn_request->initial_pose = _initial_pose;
-  spawn_request->reference_frame = _reference_frame;
+
+  geometry_msgs::Pose model_pose_;
+  model_pose_->position->x = 0.0;
+  model_pose_->position->y = 0.0;
+  model_pose_->position->z = 0.0;
+  model_pose_->orientation->x = 0.0;
+  model_pose_->orientation->y= 0.0;
+  model_pose_->orientation->z = 0.0;
+  model_pose_->orientation->w = 0.0;
+
+  // simple_arm model from public gazebo/models
+  spawn_request->model_name = "simple_arm";
+  spawn_request->xml ="<model name='simple_arm'> <link name='arm_base'> <inertial> <pose frame=''>0 0 0.00099 0 -0 0</pose> <inertia> <ixx>1.11</ixx> <ixy>0</ixy> <ixz>0</ixz> <iyy>100.11</iyy> <iyz>0</iyz> <izz>1.01</izz> </inertia> <mass>101</mass> </inertial> <collision name='arm_base_geom'> <pose frame=''>0 0 0.05 0 -0 0</pose> <geometry> <box> <size>1 1 0.1</size> </box> </geometry> <max_contacts>10</max_contacts> <surface> <contact> <ode/> </contact> <bounce/> <friction> <torsional> <ode/> </torsional> <ode/> </friction> </surface> </collision> <visual name='arm_base_geom_visual'> <pose frame=''>0 0 0.05 0 -0 0</pose> <geometry> <box> <size>1 1 0.1</size> </box> </geometry> <material> <script> <uri>file://media/materials/scripts/gazebo.material</uri> <name>Gazebo/Blue</name> </script> </material> </visual> <collision name='arm_base_geom_arm_trunk'> <pose frame=''>0 0 0.6 0 -0 0</pose> <geometry> <cylinder> <radius>0.05</radius> <length>1</length> </cylinder> </geometry> <max_contacts>10</max_contacts> <surface> <contact> <ode/> </contact> <bounce/> <friction> <torsional> <ode/> </torsional> <ode/> </friction> </surface> </collision> <visual name='arm_base_geom_arm_trunk_visual'> <pose frame=''>0 0 0.6 0 -0 0</pose> <geometry> <cylinder> <radius>0.05</radius> <length>1</length> </cylinder> </geometry> <material> <script> <uri>file://media/materials/scripts/gazebo.material</uri> <name>Gazebo/Red</name> </script> </material> </visual> <self_collide>0</self_collide> <enable_wind>0</enable_wind> <kinematic>0</kinematic> </link> <link name='arm_shoulder_pan'> <pose frame=''>0 0 1.1 0 -0 0</pose> <inertial> <pose frame=''>0.045455 0 0 0 -0 0</pose> <inertia> <ixx>0.011</ixx> <ixy>0</ixy> <ixz>0</ixz> <iyy>0.0225</iyy> <iyz>0</iyz> <izz>0.0135</izz> </inertia> <mass>1.1</mass> </inertial> <collision name='arm_shoulder_pan_geom'> <pose frame=''>0 0 0.05 0 -0 0</pose> <geometry> <cylinder> <radius>0.05</radius> <length>0.1</length> </cylinder> </geometry> <max_contacts>10</max_contacts> <surface> <contact> <ode/> </contact> <bounce/> <friction> <torsional> <ode/> </torsional> <ode/> </friction> </surface> </collision> <visual name='arm_shoulder_pan_geom_visual'> <pose frame=''>0 0 0.05 0 -0 0</pose> <geometry> <cylinder> <radius>0.05</radius> <length>0.1</length> </cylinder> </geometry> <material> <script> <uri>file://media/materials/scripts/gazebo.material</uri> <name>Gazebo/Yellow</name> </script> </material> </visual> <collision name='arm_shoulder_pan_geom_arm_shoulder'> <pose frame=''>0.55 0 0.05 0 -0 0</pose> <geometry> <box> <size>1 0.05 0.1</size> </box> </geometry> <max_contacts>10</max_contacts> <surface> <contact> <ode/> </contact> <bounce/> <friction> <torsional> <ode/> </torsional> <ode/> </friction> </surface> </collision> <visual name='arm_shoulder_pan_geom_arm_shoulder_visual'> <pose frame=''>0.55 0 0.05 0 -0 0</pose> <geometry> <box> <size>1 0.05 0.1</size> </box> </geometry> <material> <script> <uri>file://media/materials/scripts/gazebo.material</uri> <name>Gazebo/Yellow</name> </script> </material> </visual> <self_collide>0</self_collide> <enable_wind>0</enable_wind> <kinematic>0</kinematic> </link> <link name='arm_elbow_pan'> <pose frame=''>1.05 0 1.1 0 -0 0</pose> <inertial> <pose frame=''>0.0875 0 0.083333 0 -0 0</pose> <inertia> <ixx>0.031</ixx> <ixy>0</ixy> <ixz>0.005</ixz> <iyy>0.07275</iyy> <iyz>0</iyz> <izz>0.04475</izz> </inertia> <mass>1.2</mass> </inertial> <collision name='arm_elbow_pan_geom'> <pose frame=''>0 0 0.1 0 -0 0</pose> <geometry> <cylinder> <radius>0.05</radius> <length>0.2</length> </cylinder> </geometry> <max_contacts>10</max_contacts> <surface> <contact> <ode/> </contact> <bounce/> <friction> <torsional> <ode/> </torsional> <ode/> </friction> </surface> </collision> <visual name='arm_elbow_pan_geom_visual'> <pose frame=''>0 0 0.1 0 -0 0</pose> <geometry> <cylinder> <radius>0.05</radius> <length>0.2</length> </cylinder> </geometry> <material> <script> <uri>file://media/materials/scripts/gazebo.material</uri> <name>Gazebo/Red</name> </script> </material> </visual> <collision name='arm_elbow_pan_geom_arm_elbow'> <pose frame=''>0.3 0 0.15 0 -0 0</pose> <geometry> <box> <size>0.5 0.03 0.1</size> </box> </geometry> <max_contacts>10</max_contacts> <surface> <contact> <ode/> </contact> <bounce/> <friction> <torsional> <ode/> </torsional> <ode/> </friction> </surface> </collision> <visual name='arm_elbow_pan_geom_arm_elbow_visual'> <pose frame=''>0.3 0 0.15 0 -0 0</pose> <geometry> <box> <size>0.5 0.03 0.1</size> </box> </geometry> <material> <script> <uri>file://media/materials/scripts/gazebo.material</uri> <name>Gazebo/Yellow</name> </script> </material> </visual> <collision name='arm_elbow_pan_geom_arm_wrist'> <pose frame=''>0.55 0 0.15 0 -0 0</pose> <geometry> <cylinder> <radius>0.05</radius> <length>0.3</length> </cylinder> </geometry> <max_contacts>10</max_contacts> <surface> <contact> <ode/> </contact> <bounce/> <friction> <torsional> <ode/> </torsional> <ode/> </friction> </surface> </collision> <visual name='arm_elbow_pan_geom_arm_wrist_visual'> <pose frame=''>0.55 0 0.15 0 -0 0</pose> <geometry> <cylinder> <radius>0.05</radius> <length>0.3</length> </cylinder> </geometry> <material> <script> <uri>file://media/materials/scripts/gazebo.material</uri> <name>Gazebo/Red</name> </script> </material> </visual> <self_collide>0</self_collide> <enable_wind>0</enable_wind> <kinematic>0</kinematic> </link> <link name='arm_wrist_lift'> <pose frame=''>1.6 0 1.05 0 -0 0</pose> <inertial> <pose frame=''>0 0 0 0 -0 0</pose> <inertia> <ixx>0.01</ixx> <ixy>0</ixy> <ixz>0</ixz> <iyy>0.01</iyy> <iyz>0</iyz> <izz>0.001</izz> </inertia> <mass>0.1</mass> </inertial> <collision name='arm_wrist_lift_geom'> <pose frame=''>0 0 0.5 0 -0 0</pose> <geometry> <cylinder> <radius>0.03</radius> <length>1</length> </cylinder> </geometry> <max_contacts>10</max_contacts> <surface> <contact> <ode/> </contact> <bounce/> <friction> <torsional> <ode/> </torsional> <ode/> </friction> </surface> </collision> <visual name='arm_wrist_lift_geom_visual'> <pose frame=''>0 0 0.5 0 -0 0</pose> <geometry> <cylinder> <radius>0.03</radius> <length>1</length> </cylinder> </geometry> <material> <script> <uri>file://media/materials/scripts/gazebo.material</uri> <name>Gazebo/Yellow</name> </script> </material> </visual> <self_collide>0</self_collide> <enable_wind>0</enable_wind> <kinematic>0</kinematic> </link> <link name='arm_wrist_roll'> <pose frame=''>1.6 0 1 0 -0 0</pose> <inertial> <pose frame=''>0 0 0 0 -0 0</pose> <inertia> <ixx>0.01</ixx> <ixy>0</ixy> <ixz>0</ixz> <iyy>0.01</iyy> <iyz>0</iyz> <izz>0.001</izz> </inertia> <mass>0.1</mass> </inertial> <collision name='arm_wrist_roll_geom'> <pose frame=''>0 0 0.025 0 -0 0</pose> <geometry> <cylinder> <radius>0.05</radius> <length>0.05</length> </cylinder> </geometry> <max_contacts>10</max_contacts> <surface> <contact> <ode/> </contact> <bounce/> <friction> <torsional> <ode/> </torsional> <ode/> </friction> </surface> </collision> <visual name='arm_wrist_roll_geom_visual'> <pose frame=''>0 0 0.025 0 -0 0</pose> <geometry> <cylinder> <radius>0.05</radius> <length>0.05</length> </cylinder> </geometry> <material> <script> <uri>file://media/materials/scripts/gazebo.material</uri> <name>Gazebo/Red</name> </script> </material> </visual> <self_collide>0</self_collide> <enable_wind>0</enable_wind> <kinematic>0</kinematic> </link> <joint name='arm_shoulder_pan_joint' type='revolute'> <parent>arm_base</parent> <child>arm_shoulder_pan</child> <axis> <dynamics> <damping>1</damping> <friction>0</friction> <spring_reference>0</spring_reference> <spring_stiffness>0</spring_stiffness> </dynamics> <xyz>0 0 1</xyz> <use_parent_model_frame>1</use_parent_model_frame> <limit> <lower>-1e+16</lower> <upper>1e+16</upper> </limit> </axis> </joint> <joint name='arm_elbow_pan_joint' type='revolute'> <parent>arm_shoulder_pan</parent> <child>arm_elbow_pan</child> <axis> <dynamics> <damping>1</damping> <friction>0</friction> <spring_reference>0</spring_reference> <spring_stiffness>0</spring_stiffness> </dynamics> <xyz>0 0 1</xyz> <use_parent_model_frame>1</use_parent_model_frame> <limit> <lower>-1e+16</lower> <upper>1e+16</upper> </limit> </axis> </joint> <joint name='arm_wrist_lift_joint' type='prismatic'> <parent>arm_elbow_pan</parent> <child>arm_wrist_lift</child> <axis> <dynamics> <damping>1</damping> <friction>0</friction> <spring_reference>0</spring_reference> <spring_stiffness>0</spring_stiffness> </dynamics> <limit> <lower>-0.8</lower> <upper>0.1</upper> </limit> <xyz>0 0 1</xyz> <use_parent_model_frame>1</use_parent_model_frame> </axis> </joint> <joint name='arm_wrist_roll_joint' type='revolute'> <parent>arm_wrist_lift</parent> <child>arm_wrist_roll</child> <axis> <dynamics> <damping>1</damping> <friction>0</friction> <spring_reference>0</spring_reference> <spring_stiffness>0</spring_stiffness> </dynamics> <limit> <lower>-2.99999</lower> <upper>2.99999</upper> </limit> <xyz>0 0 1</xyz> <use_parent_model_frame>1</use_parent_model_frame> </axis> </joint> <pose frame=''>0.256397 -2.58283 0 0 -0 0</pose> </model>";
+  spawn_request->robot_namespace = "";
+  spawn_request->initial_pose = model_pose_;
+  spawn_request->reference_frame = "";
 
   auto spawn_entity_client = node->create_client<std_srvs::srv::Empty>("spawn_entity");
   ASSERT_NE(nullptr, spawn_entity_client);
@@ -203,13 +174,144 @@ void GazeboRosPropertiesTest::GetModelProperties(
   ASSERT_NE(nullptr, response);
   EXPECT_TRUE(response->success);
 
+  
+  EXPECT_EQ(response->parent_model_name, )
+  EXPECT_EQ(response->canonical_body_name, )
+  EXPECT_EQ(response->body_names, )
+  EXPECT_EQ(response->geom_names, )
+  EXPECT_EQ(response->joint_names, )
+  EXPECT_EQ(response->child_model_names, )
+  EXPECT_EQ(response->is_static, )
 
-  // EXPECT_NEAR, EXPECT_EQ
-  // Just make sure strings are equal?
+}*/
 
-  // spawning the model with given joints etc is simple too, but too much work right now.
 
+// Example ros2 service call
+//ros2 service call /demo/get_joint_properties 'gazebo_msgs/GetJointProperties' "{joint_name: 'simple_arm::arm_shoulder_pan_joint'}"
+//gazebo_msgs.srv.GetJointProperties_Response(type=0, damping=[], position=[0.27383861369841345], rate=[-3.5745634939922096e-05], success=True, status_message='GetJointProperties: got properties')
+/*void GazeboRosPropertiesTest::GetJointProperties(
+  const std::string & _name,
+  const std::vector<std::float64 1> & damping[],
+  const std::vector<std::float64 1> & position[],
+  const std::vector<std::float64 1> & rate[],
+  )
+
+{
+}*/
+
+/*void GazeboRosPropertiesTest::SetJointProperties(
+
+)
+{
+// Response
+string joint_name                               # name of joint
+gazebo_msgs/ODEJointProperties ode_joint_config
+
+ode_joint_config
+float64[] damping             # joint damping
+float64[] hiStop              # joint limit
+float64[] loStop              # joint limit
+float64[] erp                 # set joint erp
+float64[] cfm                 # set joint cfm
+float64[] stop_erp            # set joint erp for joint limit "contact" joint
+float64[] stop_cfm            # set joint cfm for joint limit "contact" joint
+float64[] fudge_factor        # joint fudge_factor applied at limits, see ODE manual for info.
+float64[] fmax                # ode joint param fmax
+float64[] vel                 # ode joint param vel
+
+}*/
+
+void GazeboRosPropertiesTest::GetLinkProperties(
+  const std::string & _name,
+  const ignition::math::Pose3d & _pose,
+  const std::bool & _gravity_mode,
+  const std:float64 & _mass,
+  const std:float64 & _ixx,
+  const std:float64 & _ixy,
+  const std:float64 & _ixz,
+  const std:float64 & _iyy,
+  const std:float64 & _iyz,
+  const std:float64 & _izz)
+{  
+  auto entity = world_->EntityByName(_name);
+  ASSERT_NE(nullptr, entity);
+
+  auto request = std::make_shared<gazebo_msgs::srv::GetLinkProperties::Request>();
+  request->link_name = _name;
+
+  auto response_future = get_link_properties_client_->async_send_request(request);
+  EXPECT_EQ(rclcpp::executor::FutureReturnCode::SUCCESS,
+    rclcpp::spin_until_future_complete(node_, response_future));
+
+  auto response = response_future.get();
+  ASSERT_NE(nullptr, response);
+  EXPECT_TRUE(response->success);
+
+  EXPECT_NEAR(_pose.Pos().X(), response->com.position.x, tol) << _name;
+  EXPECT_NEAR(_pose.Pos().Y(), response->com.position.y, tol) << _name;
+  EXPECT_NEAR(_pose.Pos().Z(), response->com.position.z, tol) << _name;
+
+  EXPECT_NEAR(_pose.Rot().X(), response->com.orientation.x, tol) << _name;
+  EXPECT_NEAR(_pose.Rot().Y(), response->com.orientation.y, tol) << _name;
+  EXPECT_NEAR(_pose.Rot().Z(), response->com.orientation.z, tol) << _name;
+  EXPECT_NEAR(_pose.Rot().W(), response->com.orientation.w, tol) << _name;
+
+  EXPECT_EQ(_gravity_mode, response->gravity_mode) << _name;
+  EXPECT_EQ(_mass, response->_mass) << _name;
+  EXPECT_EQ(_ixx, response->_ixx) << _name;
+  EXPECT_EQ(_ixy, response->_ixy) << _name;
+  EXPECT_EQ(_ixz, response->_ixz) << _name;
+  EXPECT_EQ(_iyy, response->_iyy) << _name;
+  EXPECT_EQ(_iyz, response->_iyz) << _name;
+  EXPECT_EQ(_izz, response->_izz) << _name;
 }
+
+void GazeboRosPropertiesTest::SetLinkProperties(
+  const std::string & _name,
+  const ignition::math::Pose3d & _pose,
+  const std::bool & _gravity_mode,
+  const std:float64 & _mass,
+  const std:float64 & _ixx,
+  const std:float64 & _ixy,
+  const std:float64 & _ixz,
+  const std:float64 & _iyy,
+  const std:float64 & _iyz,
+  const std:float64 & _izz)
+{
+
+  auto request = std::make_shared<gazebo_msgs::srv::SetLinkProperties::Request>();
+  request->link_name = _name;
+  request->com.position = gazebo_ros::Convert<geometry_msgs::msg::Point>(_pose.Pos());
+  request->com.orientation = gazebo_ros::Convert<geometry_msgs::msg::Quaternion>(_pose.Rot());
+  request->gravity_mode = _gravity_mode;
+  request->mass = _mass;
+  request->ixx = _ixx;
+  request->ixy = _ixy;
+  request->ixy = _ixy;
+  request->iyy = _iyy;
+  request->iyz = _iyz;
+  request->izz = _izz;
+
+  auto response_future = set_link_properties_client_->async_send_request(request);
+  EXPECT_EQ(rclcpp::executor::FutureReturnCode::SUCCESS,
+    rclcpp::spin_until_future_complete(node_, response_future));
+
+  auto response = response_future.get();
+  ASSERT_NE(nullptr, response);
+  EXPECT_TRUE(response->success);
+}
+
+
+/*void GazeboRosPropertiesTest::GetLightProperties(
+  const std::string & _name,
+  const std::array<std::float64 > & param[]
+  )
+
+{
+}
+//ros2 service call /demo/get_light_properties 'gazebo_msgs/GetLightProperties' "{light_name: 'sun'}"
+//gazebo_msgs.srv.GetLightProperties_Response(diffuse=std_msgs.msg.ColorRGBA(r=0.800000011920929, g=0.800000011920929, b=0.800000011920929, a=1.0), attenuation_constant=0.8999999761581421, attenuation_linear=0.009999999776482582, attenuation_quadratic=0.0010000000474974513, success=True, status_message='')
+
 
 /*
 EXAMPLE -STATE
@@ -317,7 +419,7 @@ TEST_F(GazeboRosStateTest, GetSet)
     this->GetState("boxes::top", ignition::math::Pose3d(10, 20, 30, 0.1, 0, 0),
       ignition::math::Vector3d(1.0, 2.0, 3.0), ignition::math::Vector3d(0.0, 0.0, 4.0));
   }
-}*/
+}
 
 int main(int argc, char ** argv)
 {
@@ -325,3 +427,9 @@ int main(int argc, char ** argv)
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
+
+
+
+
+
+
