@@ -55,8 +55,6 @@
 
 #include "gazebo_msgs/SetJointProperties.h"
 
-#include "gazebo_msgs/GetWorldProperties.h"
-
 #include "gazebo_msgs/GetModelProperties.h"
 #include "gazebo_msgs/GetModelState.h"
 #include "gazebo_msgs/SetModelState.h"
@@ -143,9 +141,6 @@ public:
 
   /// \brief
   bool getModelProperties(gazebo_msgs::GetModelProperties::Request &req,gazebo_msgs::GetModelProperties::Response &res);
-
-  /// \brief
-  bool getWorldProperties(gazebo_msgs::GetWorldProperties::Request &req,gazebo_msgs::GetWorldProperties::Response &res);
 
   /// \brief
   bool getJointProperties(gazebo_msgs::GetJointProperties::Request &req,gazebo_msgs::GetJointProperties::Response &res);
@@ -276,7 +271,6 @@ private:
 
   ros::ServiceServer get_model_state_service_;
   ros::ServiceServer get_model_properties_service_;
-  ros::ServiceServer get_world_properties_service_;
   ros::ServiceServer get_joint_properties_service_;
   ros::ServiceServer get_link_properties_service_;
   ros::ServiceServer get_link_state_service_;
