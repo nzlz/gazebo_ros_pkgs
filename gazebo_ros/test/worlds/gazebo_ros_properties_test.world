@@ -2,7 +2,7 @@
   <world name='default'>
     <plugin name="gazebo_ros_properties" filename="libgazebo_ros_properties.so">
       <ros>
-        <namespace>/demo</namespace>
+        <namespace>/test</namespace>
       </ros>
     </plugin>
     <light name='sun' type='directional'>

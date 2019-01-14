@@ -41,29 +41,52 @@ public:
   // Documentation inherited
   void SetUp() override;
 
-// NEW CODE
-
-
   //TODO
   void GetModelProperties();
 
   //TODO
   void GetJointProperties();
 
-  //TODO
-  void GetLinkProperties();
+  void GetLinkProperties(
+  const std::string & _link_name,
+  const ignition::math::Pose3d & _pose,
+  const std::bool & _gravity_mode,
+  const std:float64 & _mass,
+  const std:float64 & _ixx,
+  const std:float64 & _ixy,
+  const std:float64 & _ixz,
+  const std:float64 & _iyy,
+  const std:float64 & _iyz,
+  const std:float64 & _izz);
 
-  //TODO
-  void GetLightProperties();
+  void GetLightProperties(
+  const std::string & _light_name,
+  const ignition::math::Vector4d & _diffuse,
+  const std:float64 & _attenuation_constant,
+  const std:float64 & _attenuation_linear,
+  const std:float64 & _attenuation_quadratic);
 
   //TODO
   void SetJointProperties();
 
-  //TODO
-  void SetLinkProperties();
+  void SetLinkProperties(
+  const std::string & _link_name,
+  const ignition::math::Pose3d & _pose,
+  const std::bool & _gravity_mode,
+  const std:float64 & _mass,
+  const std:float64 & _ixx,
+  const std:float64 & _ixy,
+  const std:float64 & _ixz,
+  const std:float64 & _iyy,
+  const std:float64 & _iyz,
+  const std:float64 & _izz);
 
-  //TODO
-  void SetLightProperties();
+  void SetLightProperties(
+  const std::string & _light_name,
+  const ignition::math::Vector4d & _diffuse,
+  const std:float64 & _attenuation_constant,
+  const std:float64 & _attenuation_linear,
+  const std:float64 & _attenuation_quadratic);
 
 
   gazebo::physics::WorldPtr world_;
@@ -131,7 +154,6 @@ void GazeboRosPropertiesTest::SetUp()
 /*void GazeboRosPropertiesTest::GetModelProperties(
     const std::string & _name)
 {
-
   // Spawn a entity using the gazebo SpawnEntity service.
   auto spawn_request = std::make_shared<gazebo_msgs::srv::SpawnEntity::Request>();
 
@@ -185,44 +207,20 @@ void GazeboRosPropertiesTest::SetUp()
 
 }*/
 
-
-// Example ros2 service call
-//ros2 service call /demo/get_joint_properties 'gazebo_msgs/GetJointProperties' "{joint_name: 'simple_arm::arm_shoulder_pan_joint'}"
-//gazebo_msgs.srv.GetJointProperties_Response(type=0, damping=[], position=[0.27383861369841345], rate=[-3.5745634939922096e-05], success=True, status_message='GetJointProperties: got properties')
-/*void GazeboRosPropertiesTest::GetJointProperties(
-  const std::string & _name,
-  const std::vector<std::float64 1> & damping[],
-  const std::vector<std::float64 1> & position[],
-  const std::vector<std::float64 1> & rate[],
-  )
+/*void GazeboRosPropertiesTest::GetJointProperties()
 
 {
-}*/
+}
+*/
 
-/*void GazeboRosPropertiesTest::SetJointProperties(
-
-)
+/*
+void GazeboRosPropertiesTest::SetJointProperties()
 {
-// Response
-string joint_name                               # name of joint
-gazebo_msgs/ODEJointProperties ode_joint_config
-
-ode_joint_config
-float64[] damping             # joint damping
-float64[] hiStop              # joint limit
-float64[] loStop              # joint limit
-float64[] erp                 # set joint erp
-float64[] cfm                 # set joint cfm
-float64[] stop_erp            # set joint erp for joint limit "contact" joint
-float64[] stop_cfm            # set joint cfm for joint limit "contact" joint
-float64[] fudge_factor        # joint fudge_factor applied at limits, see ODE manual for info.
-float64[] fmax                # ode joint param fmax
-float64[] vel                 # ode joint param vel
-
-}*/
+}
+*/
 
 void GazeboRosPropertiesTest::GetLinkProperties(
-  const std::string & _name,
+  const std::string & _link_name,
   const ignition::math::Pose3d & _pose,
   const std::bool & _gravity_mode,
   const std:float64 & _mass,
@@ -233,11 +231,11 @@ void GazeboRosPropertiesTest::GetLinkProperties(
   const std:float64 & _iyz,
   const std:float64 & _izz)
 {  
-  auto entity = world_->EntityByName(_name);
+  auto entity = world_->EntityByName(_link_name);
   ASSERT_NE(nullptr, entity);
 
   auto request = std::make_shared<gazebo_msgs::srv::GetLinkProperties::Request>();
-  request->link_name = _name;
+  request->link_name = _link_name;
 
   auto response_future = get_link_properties_client_->async_send_request(request);
   EXPECT_EQ(rclcpp::executor::FutureReturnCode::SUCCESS,
@@ -247,27 +245,27 @@ void GazeboRosPropertiesTest::GetLinkProperties(
   ASSERT_NE(nullptr, response);
   EXPECT_TRUE(response->success);
 
-  EXPECT_NEAR(_pose.Pos().X(), response->com.position.x, tol) << _name;
-  EXPECT_NEAR(_pose.Pos().Y(), response->com.position.y, tol) << _name;
-  EXPECT_NEAR(_pose.Pos().Z(), response->com.position.z, tol) << _name;
+  EXPECT_NEAR(_pose.Pos().X(), response->com.position.x, tol) << _link_name;
+  EXPECT_NEAR(_pose.Pos().Y(), response->com.position.y, tol) << _link_name;
+  EXPECT_NEAR(_pose.Pos().Z(), response->com.position.z, tol) << _link_name;
 
-  EXPECT_NEAR(_pose.Rot().X(), response->com.orientation.x, tol) << _name;
-  EXPECT_NEAR(_pose.Rot().Y(), response->com.orientation.y, tol) << _name;
-  EXPECT_NEAR(_pose.Rot().Z(), response->com.orientation.z, tol) << _name;
-  EXPECT_NEAR(_pose.Rot().W(), response->com.orientation.w, tol) << _name;
+  EXPECT_NEAR(_pose.Rot().X(), response->com.orientation.x, tol) << _link_name;
+  EXPECT_NEAR(_pose.Rot().Y(), response->com.orientation.y, tol) << _link_name;
+  EXPECT_NEAR(_pose.Rot().Z(), response->com.orientation.z, tol) << _link_name;
+  EXPECT_NEAR(_pose.Rot().W(), response->com.orientation.w, tol) << _link_name;
 
-  EXPECT_EQ(_gravity_mode, response->gravity_mode) << _name;
-  EXPECT_EQ(_mass, response->_mass) << _name;
-  EXPECT_EQ(_ixx, response->_ixx) << _name;
-  EXPECT_EQ(_ixy, response->_ixy) << _name;
-  EXPECT_EQ(_ixz, response->_ixz) << _name;
-  EXPECT_EQ(_iyy, response->_iyy) << _name;
-  EXPECT_EQ(_iyz, response->_iyz) << _name;
-  EXPECT_EQ(_izz, response->_izz) << _name;
+  EXPECT_EQ(_gravity_mode, response->gravity_mode) << _link_name;
+  EXPECT_EQ(_mass, response->_mass) << _link_name;
+  EXPECT_EQ(_ixx, response->_ixx) << _link_name;
+  EXPECT_EQ(_ixy, response->_ixy) << _link_name;
+  EXPECT_EQ(_ixz, response->_ixz) << _link_name;
+  EXPECT_EQ(_iyy, response->_iyy) << _link_name;
+  EXPECT_EQ(_iyz, response->_iyz) << _link_name;
+  EXPECT_EQ(_izz, response->_izz) << _link_name;
 }
 
 void GazeboRosPropertiesTest::SetLinkProperties(
-  const std::string & _name,
+  const std::string & _link_name,
   const ignition::math::Pose3d & _pose,
   const std::bool & _gravity_mode,
   const std:float64 & _mass,
@@ -280,7 +278,7 @@ void GazeboRosPropertiesTest::SetLinkProperties(
 {
 
   auto request = std::make_shared<gazebo_msgs::srv::SetLinkProperties::Request>();
-  request->link_name = _name;
+  request->link_name = _link_name;
   request->com.position = gazebo_ros::Convert<geometry_msgs::msg::Point>(_pose.Pos());
   request->com.orientation = gazebo_ros::Convert<geometry_msgs::msg::Quaternion>(_pose.Rot());
   request->gravity_mode = _gravity_mode;
@@ -301,34 +299,20 @@ void GazeboRosPropertiesTest::SetLinkProperties(
   EXPECT_TRUE(response->success);
 }
 
-
-/*void GazeboRosPropertiesTest::GetLightProperties(
-  const std::string & _name,
-  const std::array<std::float64 > & param[]
-  )
-
+void GazeboRosPropertiesTest::GetLightProperties(
+  const std::string & _light_name,
+  const ignition::math::Vector4d & _diffuse,
+  const std:float64 & _attenuation_constant,
+  const std:float64 & _attenuation_linear,
+  const std:float64 & _attenuation_quadratic)
 {
-}
-//ros2 service call /demo/get_light_properties 'gazebo_msgs/GetLightProperties' "{light_name: 'sun'}"
-//gazebo_msgs.srv.GetLightProperties_Response(diffuse=std_msgs.msg.ColorRGBA(r=0.800000011920929, g=0.800000011920929, b=0.800000011920929, a=1.0), attenuation_constant=0.8999999761581421, attenuation_linear=0.009999999776482582, attenuation_quadratic=0.0010000000474974513, success=True, status_message='')
-
-
-/*
-EXAMPLE -STATE
-
-void GazeboRosStateTest::GetState(
-  const std::string & _entity,
-  const ignition::math::Pose3d & _pose,
-  const ignition::math::Vector3d & _lin_vel,
-  const ignition::math::Vector3d & _ang_vel)
-{
-  auto entity = world_->EntityByName(_entity);
+  auto entity = world_->EntityByName(_light_name);
   ASSERT_NE(nullptr, entity);
 
-  auto request = std::make_shared<gazebo_msgs::srv::GetEntityState::Request>();
-  request->name = _entity;
+  auto request = std::make_shared<gazebo_msgs::srv::GetLightProperties::Request>();
+  request->_light_name = _light_name;
 
-  auto response_future = get_state_client_->async_send_request(request);
+  auto response_future = get_light_properties_client_->async_send_request(request);
   EXPECT_EQ(rclcpp::executor::FutureReturnCode::SUCCESS,
     rclcpp::spin_until_future_complete(node_, response_future));
 
@@ -336,39 +320,35 @@ void GazeboRosStateTest::GetState(
   ASSERT_NE(nullptr, response);
   EXPECT_TRUE(response->success);
 
-  EXPECT_NEAR(_pose.Pos().X(), response->state.pose.position.x, tol) << _entity;
-  EXPECT_NEAR(_pose.Pos().Y(), response->state.pose.position.y, tol) << _entity;
-  EXPECT_NEAR(_pose.Pos().Z(), response->state.pose.position.z, tol) << _entity;
+  EXPECT_NEAR(_diffuse.X(), response->diffuse.r, tol) << _light_name;
+  EXPECT_NEAR(_diffuse.Y(), response->diffuse.g, tol) << _light_name;
+  EXPECT_NEAR(_diffuse.Z(), response->diffuse.b, tol) << _light_name;
+  EXPECT_NEAR(_diffuse.W(), response->diffuse.a, tol) << _light_name;
 
-  EXPECT_NEAR(_pose.Rot().X(), response->state.pose.orientation.x, tol) << _entity;
-  EXPECT_NEAR(_pose.Rot().Y(), response->state.pose.orientation.y, tol) << _entity;
-  EXPECT_NEAR(_pose.Rot().Z(), response->state.pose.orientation.z, tol) << _entity;
-  EXPECT_NEAR(_pose.Rot().W(), response->state.pose.orientation.w, tol) << _entity;
+  EXPECT_NEAR(_attenuation_constant, response->attenuation_constant, tol) << _light_name;
+  EXPECT_NEAR(_attenuation_linear, response->attenuation_linear, tol) << _light_name;
+  EXPECT_NEAR(_attenuation_quadratic, response->attenuation_quadratic, tol) << _light_name;
 
-  EXPECT_NEAR(_lin_vel.X(), response->state.twist.linear.x, tol) << _entity;
-  EXPECT_NEAR(_lin_vel.Y(), response->state.twist.linear.y, tol) << _entity;
-  EXPECT_NEAR(_lin_vel.Z(), response->state.twist.linear.z, tol) << _entity;
-
-  EXPECT_NEAR(_ang_vel.X(), response->state.twist.angular.x, tol) << _entity;
-  EXPECT_NEAR(_ang_vel.Y(), response->state.twist.angular.y, tol) << _entity;
-  EXPECT_NEAR(_ang_vel.Z(), response->state.twist.angular.z, tol) << _entity;
 }
 
-void GazeboRosStateTest::SetState(
-  const std::string & _entity,
-  const ignition::math::Pose3d & _pose,
-  const ignition::math::Vector3d & _lin_vel,
-  const ignition::math::Vector3d & _ang_vel)
+void GazeboRosPropertiesTest::SetLightProperties(
+  const std::string & _light_name,
+  const ignition::math::Vector4d & _diffuse,
+  const std:float64 & _attenuation_constant,
+  const std:float64 & _attenuation_linear,
+  const std:float64 & _attenuation_quadratic)
 {
-  auto request = std::make_shared<gazebo_msgs::srv::SetEntityState::Request>();
-  request->state.name = _entity;
-  request->state.pose.position = gazebo_ros::Convert<geometry_msgs::msg::Point>(_pose.Pos());
-  request->state.pose.orientation =
-    gazebo_ros::Convert<geometry_msgs::msg::Quaternion>(_pose.Rot());
-  request->state.twist.linear = gazebo_ros::Convert<geometry_msgs::msg::Vector3>(_lin_vel);
-  request->state.twist.angular = gazebo_ros::Convert<geometry_msgs::msg::Vector3>(_ang_vel);
+  auto request = std::make_shared<gazebo_msgs::srv::SetLightProperties::Request>();
+  request->_light_name = _light_name;
+  request->diffuse.r = _diffuse.X();
+  request->diffuse.g = _diffuse.Y();
+  request->diffuse.b = _diffuse.Z();
+  request->diffuse.a = _diffuse.W();
+  request->attenuation_constant = _attenuation_constant;
+  request->attenuation_linear = _attenuation_linear;
+  request->attenuation_quadratic = _attenuation_quadratic;
 
-  auto response_future = set_state_client_->async_send_request(request);
+  auto response_future = set_link_properties_client_->async_send_request(request);
   EXPECT_EQ(rclcpp::executor::FutureReturnCode::SUCCESS,
     rclcpp::spin_until_future_complete(node_, response_future));
 
@@ -377,47 +357,41 @@ void GazeboRosStateTest::SetState(
   EXPECT_TRUE(response->success);
 }
 
-TEST_F(GazeboRosStateTest, GetSet)
+TEST_F(GazeboRosPropertiesTest, GetSet)
 {
-  // Get / set model state
+  // Get / set link properties
   {
-    // Get initial state
-    this->GetState("boxes", ignition::math::Pose3d(0, 0, 0.5, 0, 0, 0));
 
-    // Set new state
-    this->SetState("boxes", ignition::math::Pose3d(1.0, 2.0, 10.0, 0, 0, 0),
-      ignition::math::Vector3d(4.0, 0, 0), ignition::math::Vector3d::Zero);
+    // Get initial link properties
+    this->GetLinkProperties("simple_arm::arm_base", 
+                          ignition::math::Pose3d(0, 0, 0, 0, 0, 0),
+                          true, 101.0, 1.11, 0.0, 0.0, 100.11, 0.0, 1.01);
 
-    // Check new state
-    this->GetState("boxes", ignition::math::Pose3d(1.0, 2.0, 10.0, 0, 0, 0),
-      ignition::math::Vector3d(4.0, 0, 0), ignition::math::Vector3d::Zero);
+    // Set link properties
+    this->SetLinkProperties("simple_arm::arm_base", 
+                          ignition::math::Pose3d(2.0, 2.0, 2.0, 0, 0, 0),
+                          true, 102.2, 1.2, 0.2, 0.2, 102.2, 0.2, 1.02);
+
+    // Check new link properties
+    this->GetLinkProperties("simple_arm::arm_base", 
+                          ignition::math::Pose3d(2.0, 2.0, 2.0, 0, 0, 0),
+                          true, 102.2, 1.2, 0.2, 0.2, 102.2, 0.2, 1.02);
   }
 
-  // Get / set light state
+  // Get / set light properties
   {
-    // Get initial state
-    this->GetState("sun", ignition::math::Pose3d(0, 0, 10, 0, 0, 0));
 
-    // Set new state
-    this->SetState("sun", ignition::math::Pose3d(1.0, 2.0, 3.0, 0.1, 0.2, 0.3));
+    // Get initial light properties
+    this->GetLightProperties("sun", ignition::math::Vector4d(0.800000011920929, 0.800000011920929, 0.800000011920929, 1.0)
+                            0.8999999761581421, 0.009999999776482582, 0.0010000000474974513)
 
-    // Check new state
-    this->GetState("sun", ignition::math::Pose3d(1.0, 2.0, 3.0, 0.1, 0.2, 0.3));
-  }
+    // Set light properties
+    this->SetLightProperties("sun", ignition::math::Vector4d(0.92, 0.92, 0.92, 1.02)
+                            0.92, 0.0092, 0.002)
 
-  // Get / set link state
-  {
-    // Get initial state - note that is was moved with the model
-    this->GetState("boxes::top", ignition::math::Pose3d(1.0, 2.0, 11.25, 0, 0, 0),
-      ignition::math::Vector3d(4.0, 0, 0), ignition::math::Vector3d::Zero);
-
-    // Set new state
-    this->SetState("boxes::top", ignition::math::Pose3d(10, 20, 30, 0.1, 0, 0),
-      ignition::math::Vector3d(1.0, 2.0, 3.0), ignition::math::Vector3d(0.0, 0.0, 4.0));
-
-    // Check new state
-    this->GetState("boxes::top", ignition::math::Pose3d(10, 20, 30, 0.1, 0, 0),
-      ignition::math::Vector3d(1.0, 2.0, 3.0), ignition::math::Vector3d(0.0, 0.0, 4.0));
+    // Check new light properties
+    this->GetLightProperties("sun", ignition::math::Vector4d(0.92, 0.92, 0.92, 1.02)
+                            0.92, 0.0092, 0.002)
   }
 }
 
