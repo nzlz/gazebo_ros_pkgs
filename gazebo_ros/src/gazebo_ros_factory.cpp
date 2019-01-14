@@ -19,6 +19,7 @@
 #include <gazebo/physics/Entity.hh>
 #include <gazebo/physics/PhysicsIface.hh>
 #include <gazebo/physics/World.hh>
+#include <gazebo/physics/Model.hh>
 #include <gazebo/transport/Node.hh>
 #include <gazebo_msgs/srv/get_model_list.hpp>
 #include <gazebo_msgs/srv/delete_entity.hpp>
@@ -46,7 +47,6 @@ public:
   void OnWorldCreated(const std::string & _world_name);
 
   /// \brief Function for receiving the model list from a gazebo world.
-  /// \param[in] req Request
   /// \param[out] res Response
   void GetModelList(
     gazebo_msgs::srv::GetModelList::Response::SharedPtr res);
@@ -163,9 +163,8 @@ void GazeboRosFactoryPrivate::GetModelList(
   res->sim_time = world_->SimTime().Double();
   for (unsigned int i = 0; i < world_->ModelCount(); i ++)
     res->model_names.push_back(world_->ModelByIndex(i)->GetName());
-  gzerr << "disablign rendering has not been implemented, rendering is always enabled\n";
   res->success = true;
-  res->status_message = "GetWorldProperties: got properties";
+  res->status_message = "GetModelList: got model list";
 }
 
 void GazeboRosFactoryPrivate::SpawnEntity(
