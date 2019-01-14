@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <gazebo/test/ServerFixture.hh>
+#include <gazebo_msgs/srv/get_model_list.hpp>
 #include <gazebo_msgs/srv/delete_entity.hpp>
 #include <gazebo_msgs/srv/spawn_entity.hpp>
 #include <rclcpp/rclcpp.hpp>
@@ -36,6 +37,10 @@ TEST_F(GazeboRosFactoryTest, SpawnDelete)
   auto node = std::make_shared<rclcpp::Node>("gazebo_ros_factory_test");
   ASSERT_NE(nullptr, node);
 
+  auto model_list_client = node->create_client<gazebo_msgs::srv::GetModelList>("get_model_list");
+  ASSERT_NE(nullptr, model_list_client);
+  EXPECT_TRUE(model_list_client->wait_for_service(std::chrono::seconds(1)));
+
   auto spawn_client = node->create_client<gazebo_msgs::srv::SpawnEntity>("spawn_entity");
   ASSERT_NE(nullptr, spawn_client);
   EXPECT_TRUE(spawn_client->wait_for_service(std::chrono::seconds(1)));
@@ -43,6 +48,80 @@ TEST_F(GazeboRosFactoryTest, SpawnDelete)
   auto delete_client = node->create_client<gazebo_msgs::srv::DeleteEntity>("delete_entity");
   ASSERT_NE(nullptr, delete_client);
   EXPECT_TRUE(delete_client->wait_for_service(std::chrono::seconds(1)));
+
+  // Get Model List (Spawn two sdf models and check result)
+  {
+    // Model 1
+    // Check it has no box1 model
+    EXPECT_EQ(nullptr, world->ModelByName("sdf_box1"));
+
+    // Request spawn box1
+    auto request = std::make_shared<gazebo_msgs::srv::SpawnEntity::Request>();
+    request->name = "sdf_box1";
+    request->initial_pose.position.x = -1.0;
+    request->initial_pose.position.y = -1.0;
+    request->initial_pose.position.z = 0.0;
+    request->xml =
+      "<?xml version='1.0' ?>"
+      "<sdf version='1.5'>"
+      "<model name='ignored'>"
+      "<static>true</static>"
+      "<link name='link'>"
+      "<visual name='visual'>"
+      "<geometry>"
+      "<sphere><radius>1.0</radius></sphere>"
+      "</geometry>"
+      "</visual>"
+      "</link>"
+      "</model>"
+      "</sdf>";
+
+    auto response_future = spawn_client->async_send_request(request);
+    EXPECT_EQ(rclcpp::executor::FutureReturnCode::SUCCESS,
+      rclcpp::spin_until_future_complete(node, response_future));
+
+    auto response = response_future.get();
+    ASSERT_NE(nullptr, response);
+    EXPECT_TRUE(response->success);
+
+    // Model 2
+    // Check it has no box2 model
+    EXPECT_EQ(nullptr, world->ModelByName("sdf_box1"));
+
+    // Request spawn box2
+    request = std::make_shared<gazebo_msgs::srv::SpawnEntity::Request>();
+    request->name = "sdf_box2";
+    request->initial_pose.position.x = 1.5;
+    request->initial_pose.position.y = 1.5;
+    request->initial_pose.position.z = 0.0;
+    request->xml =
+      "<?xml version='1.0' ?>"
+      "<sdf version='1.5'>"
+      "<model name='ignored'>"
+      "<static>true</static>"
+      "<link name='link'>"
+      "<visual name='visual'>"
+      "<geometry>"
+      "<sphere><radius>2.0</radius></sphere>"
+      "</geometry>"
+      "</visual>"
+      "</link>"
+      "</model>"
+      "</sdf>";
+
+    response_future = spawn_client->async_send_request(request);
+    EXPECT_EQ(rclcpp::executor::FutureReturnCode::SUCCESS,
+      rclcpp::spin_until_future_complete(node, response_future));
+
+    response = response_future.get();
+    ASSERT_NE(nullptr, response);
+    EXPECT_TRUE(response->success);
+
+    // Check GetModelList
+
+
+
+  }
 
   // Spawn SDF model
   {

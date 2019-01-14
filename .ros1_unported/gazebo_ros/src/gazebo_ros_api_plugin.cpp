@@ -252,15 +252,6 @@ void GazeboRosApiPlugin::advertiseServices()
   get_model_state_service_ = nh_->advertiseService(get_model_state_aso);
 
   // Advertise more services on the custom queue
-  std::string get_world_properties_service_name("get_world_properties");
-  ros::AdvertiseServiceOptions get_world_properties_aso =
-    ros::AdvertiseServiceOptions::create<gazebo_msgs::GetWorldProperties>(
-                                                                          get_world_properties_service_name,
-                                                                          boost::bind(&GazeboRosApiPlugin::getWorldProperties,this,_1,_2),
-                                                                          ros::VoidPtr(), &gazebo_queue_);
-  get_world_properties_service_ = nh_->advertiseService(get_world_properties_aso);
-
-  // Advertise more services on the custom queue
   std::string get_joint_properties_service_name("get_joint_properties");
   ros::AdvertiseServiceOptions get_joint_properties_aso =
     ros::AdvertiseServiceOptions::create<gazebo_msgs::GetJointProperties>(
@@ -697,26 +688,6 @@ bool GazeboRosApiPlugin::getModelProperties(gazebo_msgs::GetModelProperties::Req
     res.status_message = "GetModelProperties: got properties";
     return true;
   }
-  return true;
-}
-
-bool GazeboRosApiPlugin::getWorldProperties(gazebo_msgs::GetWorldProperties::Request &req,
-                                            gazebo_msgs::GetWorldProperties::Response &res)
-{
-  res.model_names.clear();
-#if GAZEBO_MAJOR_VERSION >= 8
-  res.sim_time = world_->SimTime().Double();
-  for (unsigned int i = 0; i < world_->ModelCount(); i ++)
-    res.model_names.push_back(world_->ModelByIndex(i)->GetName());
-#else
-  res.sim_time = world_->GetSimTime().Double();
-  for (unsigned int i = 0; i < world_->GetModelCount(); i ++)
-    res.model_names.push_back(world_->GetModel(i)->GetName());
-#endif
-  gzerr << "disablign rendering has not been implemented, rendering is always enabled\n";
-  res.rendering_enabled = true; //world->GetRenderEngineEnabled();
-  res.success = true;
-  res.status_message = "GetWorldProperties: got properties";
   return true;
 }
 
