@@ -49,6 +49,7 @@ public:
   /// \brief Function for receiving the model list from a gazebo world.
   /// \param[out] res Response
   void GetModelList(
+    gazebo_msgs::srv::GetModelList::Request::SharedPtr,
     gazebo_msgs::srv::GetModelList::Response::SharedPtr res);
 
   /// \brief Function for inserting an entity into Gazebo from ROS Service Call.
@@ -157,6 +158,7 @@ void GazeboRosFactoryPrivate::OnWorldCreated(const std::string & _world_name)
 }
 
 void GazeboRosFactoryPrivate::GetModelList(
+  gazebo_msgs::srv::GetModelList::Request::SharedPtr,
   gazebo_msgs::srv::GetModelList::Response::SharedPtr res)
 {
   res->model_names.clear();
