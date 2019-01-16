@@ -5,19 +5,19 @@
   GETTING PROPERTIES
   Try for example to get a model's properties:
 
-      ros2 service call /demo/get_model_properties 'gazebo_msgs/GetModelProperties' '{model_name: simple_arm"}'
+      ros2 service call /demo/get_model_properties 'gazebo_msgs/GetModelProperties' '{model_name: "simple_arm"}'
 
   Or a joint's properties:
 
-      ros2 service call /demo/get_joint_properties 'gazebo_msgs/GetJointProperties' '{joint_name: simple_arm::arm_shoulder_pan_joint"}
+      ros2 service call /demo/get_joint_properties 'gazebo_msgs/GetJointProperties' '{joint_name: "simple_arm::arm_shoulder_pan_joint"}
 
   Or a link's properties:
 
-      ros2 service call /demo/get_link_properties 'gazebo_msgs/GetLinktProperties' '{link_name: simple_arm::arm_base"}
+      ros2 service call /demo/get_link_properties 'gazebo_msgs/GetLinktProperties' '{link_name: "simple_arm::arm_base"}
 
   Or get light properties:
 
-      ros2 service call /demo/get_light_properties 'gazebo_msgs/GetLightProperties' '{light_name: sun"}
+      ros2 service call /demo/get_light_properties 'gazebo_msgs/GetLightProperties' '{light_name: "sun"}
 
   SETTING PROPERTIES
 
