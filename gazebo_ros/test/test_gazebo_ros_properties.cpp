@@ -41,51 +41,52 @@ public:
   // Documentation inherited
   void SetUp() override;
 
-  //TODO
-  void GetModelProperties();
+  void GetModelProperties(
+  const std::string & _model_name);
 
-  //TODO
-  void GetJointProperties();
+  void GetJointProperties(
+  const std::string & _joint_name,
+  const std::vector<double> & _damping);
 
   void GetLinkProperties(
   const std::string & _link_name,
-  const std::bool & _gravity_mode,
-  const std:float64 & _mass,
-  const std:float64 & _ixx,
-  const std:float64 & _ixy,
-  const std:float64 & _ixz,
-  const std:float64 & _iyy,
-  const std:float64 & _iyz,
-  const std:float64 & _izz);
+  const bool & _gravity_mode,
+  const double & _mass,
+  const double & _ixx,
+  const double & _ixy,
+  const double & _ixz,
+  const double & _iyy,
+  const double & _iyz,
+  const double & _izz);
 
   void GetLightProperties(
   const std::string & _light_name,
   const ignition::math::Vector4d & _diffuse,
-  const std:float64 & _attenuation_constant,
-  const std:float64 & _attenuation_linear,
-  const std:float64 & _attenuation_quadratic);
+  const double & _attenuation_constant,
+  const double & _attenuation_linear,
+  const double & _attenuation_quadratic);
 
-  //TODO
-  void SetJointProperties();
+  void SetJointProperties(
+  const std::string & _joint_name,
+  const std::vector<double> & _damping);
 
   void SetLinkProperties(
   const std::string & _link_name,
-  const std::bool & _gravity_mode,
-  const std:float64 & _mass,
-  const std:float64 & _ixx,
-  const std:float64 & _ixy,
-  const std:float64 & _ixz,
-  const std:float64 & _iyy,
-  const std:float64 & _iyz,
-  const std:float64 & _izz);
+  const bool & _gravity_mode,
+  const double & _mass,
+  const double & _ixx,
+  const double & _ixy,
+  const double & _ixz,
+  const double & _iyy,
+  const double & _iyz,
+  const double & _izz);
 
   void SetLightProperties(
   const std::string & _light_name,
   const ignition::math::Vector4d & _diffuse,
-  const std:float64 & _attenuation_constant,
-  const std:float64 & _attenuation_linear,
-  const std:float64 & _attenuation_quadratic);
-
+  const double & _attenuation_constant,
+  const double & _attenuation_linear,
+  const double & _attenuation_quadratic);
 
   gazebo::physics::WorldPtr world_;
   rclcpp::Node::SharedPtr node_;
@@ -117,10 +118,10 @@ void GazeboRosPropertiesTest::SetUp()
   ASSERT_NE(nullptr, get_model_properties_client_);
   EXPECT_TRUE(get_model_properties_client_->wait_for_service(std::chrono::seconds(1)));
 
-  get_model_properties_client_ =
+  get_joint_properties_client_ =
     node_->create_client<gazebo_msgs::srv::GetJointProperties>("test/get_joint_properties");
-  ASSERT_NE(nullptr, get_model_properties_client_);
-  EXPECT_TRUE(get_model_properties_client_->wait_for_service(std::chrono::seconds(1)));
+  ASSERT_NE(nullptr, get_joint_properties_client_);
+  EXPECT_TRUE(get_joint_properties_client_->wait_for_service(std::chrono::seconds(1)));
 
   get_link_properties_client_ =
     node_->create_client<gazebo_msgs::srv::GetLinkProperties>("test/get_link_properties");
@@ -150,15 +151,14 @@ void GazeboRosPropertiesTest::SetUp()
 }
 
 void GazeboRosPropertiesTest::GetModelProperties(
-    const std::string & _name)
+    const std::string & _model_name)
 {
-
   // Get spawned Model properties
-  auto entity = world_->EntityByName(_entity);
+  auto entity = world_->EntityByName(_model_name);
   ASSERT_NE(nullptr, entity);
 
   auto request = std::make_shared<gazebo_msgs::srv::GetModelProperties::Request>();
-  request->model_name = _entity;
+  request->model_name = _model_name;
 
   auto response_future = get_model_properties_client_->async_send_request(request);
   EXPECT_EQ(rclcpp::executor::FutureReturnCode::SUCCESS,
@@ -169,38 +169,81 @@ void GazeboRosPropertiesTest::GetModelProperties(
   EXPECT_TRUE(response->success);
 
   // gazebo models simple_arm
-  EXPECT_EQ(response->parent_model_name, '');
-  EXPECT_EQ(response->canonical_body_name, '');
-  EXPECT_EQ(response->body_names, ['arm_base', 'arm_shoulder_pan', 'arm_elbow_pan', 'arm_wrist_lift', 'arm_wrist_roll']);
-  EXPECT_EQ(response->geom_names, ['arm_base_geom', 'arm_base_geom_arm_trunk', 'arm_shoulder_pan_geom', 'arm_shoulder_pan_geom_arm_shoulder', 'arm_elbow_pan_geom', 'arm_elbow_pan_geom_arm_elbow', 'arm_elbow_pan_geom_arm_wrist', 'arm_wrist_lift_geom', 'arm_wrist_roll_geom']);
-  EXPECT_EQ(response->joint_names, []);
-  EXPECT_EQ(response->child_model_names);
+  EXPECT_EQ(response->parent_model_name, "");
+  EXPECT_EQ(response->canonical_body_name, "");
+
+  EXPECT_EQ(response->body_names[0], "arm_base");
+  EXPECT_EQ(response->body_names[1], "arm_shoulder_pan");
+  EXPECT_EQ(response->body_names[2], "arm_elbow_pan");
+  EXPECT_EQ(response->body_names[3], "arm_wrist_lift");
+  EXPECT_EQ(response->body_names[4], "arm_wrist_roll");
+
+  EXPECT_EQ(response->geom_names[0], "arm_base_geom");
+  EXPECT_EQ(response->geom_names[1], "arm_base_geom_arm_trunk");
+  EXPECT_EQ(response->geom_names[2], "arm_shoulder_pan_geom");
+  EXPECT_EQ(response->geom_names[3], "arm_shoulder_pan_geom_arm_shoulder");
+  EXPECT_EQ(response->geom_names[4], "arm_elbow_pan_geom");
+  EXPECT_EQ(response->geom_names[5], "arm_elbow_pan_geom_arm_elbow");
+  EXPECT_EQ(response->geom_names[6], "arm_elbow_pan_geom_arm_wrist");
+  EXPECT_EQ(response->geom_names[6], "arm_wrist_lift_geom");
+  EXPECT_EQ(response->geom_names[6], "arm_wrist_roll_geom");
+
+  EXPECT_EQ(response->joint_names[0], "arm_shoulder_pan_joint");
+  EXPECT_EQ(response->joint_names[1], "arm_elbow_pan_joint");
+  EXPECT_EQ(response->joint_names[2], "arm_wrist_lift_joint");
+
+  std::vector<std::string> v; // Empty
+  EXPECT_EQ(response->child_model_names, v);
   EXPECT_FALSE(response->is_static);
-
 }
 
-/*void GazeboRosPropertiesTest::GetJointProperties()
-
+void GazeboRosPropertiesTest::GetJointProperties(
+  const std::string & _joint_name,
+  const std::vector<double> & _damping)
 {
-}
-*/
+  auto entity = world_->EntityByName(_joint_name);
+  ASSERT_NE(nullptr, entity);
 
-/*
-void GazeboRosPropertiesTest::SetJointProperties()
-{
+  auto request = std::make_shared<gazebo_msgs::srv::GetJointProperties::Request>();
+  request->joint_name = _joint_name;
+
+  auto response_future = get_joint_properties_client_->async_send_request(request);
+  EXPECT_EQ(rclcpp::executor::FutureReturnCode::SUCCESS,
+    rclcpp::spin_until_future_complete(node_, response_future));
+
+  auto response = response_future.get();
+  ASSERT_NE(nullptr, response);
+  EXPECT_TRUE(response->success);
+  EXPECT_EQ(response->damping[0], _damping);
 }
-*/
+
+void GazeboRosPropertiesTest::SetJointProperties(
+  const std::string & _joint_name,
+  const std::vector<double> & _damping)
+{
+  auto request = std::make_shared<gazebo_msgs::srv::SetJointProperties::Request>();
+  request->joint_name = _joint_name;
+  request->ode_joint_config.damping = _damping;
+
+  auto response_future = set_joint_properties_client_->async_send_request(request);
+  EXPECT_EQ(rclcpp::executor::FutureReturnCode::SUCCESS,
+    rclcpp::spin_until_future_complete(node_, response_future));
+
+  auto response = response_future.get();
+  ASSERT_NE(nullptr, response);
+  EXPECT_TRUE(response->success);
+}
 
 void GazeboRosPropertiesTest::GetLinkProperties(
   const std::string & _link_name,
-  const std::bool & _gravity_mode,
-  const std:float64 & _mass,
-  const std:float64 & _ixx,
-  const std:float64 & _ixy,
-  const std:float64 & _ixz,
-  const std:float64 & _iyy,
-  const std:float64 & _iyz,
-  const std:float64 & _izz)
+  const bool & _gravity_mode,
+  const double & _mass,
+  const double & _ixx,
+  const double & _ixy,
+  const double & _ixz,
+  const double & _iyy,
+  const double & _iyz,
+  const double & _izz)
 {  
   auto entity = world_->EntityByName(_link_name);
   ASSERT_NE(nullptr, entity);
@@ -217,34 +260,33 @@ void GazeboRosPropertiesTest::GetLinkProperties(
   EXPECT_TRUE(response->success);
 
   EXPECT_EQ(_gravity_mode, response->gravity_mode) << _link_name;
-  EXPECT_EQ(_mass, response->_mass) << _link_name;
-  EXPECT_EQ(_ixx, response->_ixx) << _link_name;
-  EXPECT_EQ(_ixy, response->_ixy) << _link_name;
-  EXPECT_EQ(_ixz, response->_ixz) << _link_name;
-  EXPECT_EQ(_iyy, response->_iyy) << _link_name;
-  EXPECT_EQ(_iyz, response->_iyz) << _link_name;
-  EXPECT_EQ(_izz, response->_izz) << _link_name;
+  EXPECT_EQ(_mass, response->mass) << _link_name;
+  EXPECT_EQ(_ixx, response->ixx) << _link_name;
+  EXPECT_EQ(_ixy, response->ixy) << _link_name;
+  EXPECT_EQ(_ixz, response->ixz) << _link_name;
+  EXPECT_EQ(_iyy, response->iyy) << _link_name;
+  EXPECT_EQ(_iyz, response->iyz) << _link_name;
+  EXPECT_EQ(_izz, response->izz) << _link_name;
 }
 
 void GazeboRosPropertiesTest::SetLinkProperties(
   const std::string & _link_name,
-  const std::bool & _gravity_mode,
-  const std:float64 & _mass,
-  const std:float64 & _ixx,
-  const std:float64 & _ixy,
-  const std:float64 & _ixz,
-  const std:float64 & _iyy,
-  const std:float64 & _iyz,
-  const std:float64 & _izz)
+  const bool & _gravity_mode,
+  const double & _mass,
+  const double & _ixx,
+  const double & _ixy,
+  const double & _ixz,
+  const double & _iyy,
+  const double & _iyz,
+  const double & _izz)
 {
-
   auto request = std::make_shared<gazebo_msgs::srv::SetLinkProperties::Request>();
   request->link_name = _link_name;
   request->gravity_mode = _gravity_mode;
   request->mass = _mass;
   request->ixx = _ixx;
   request->ixy = _ixy;
-  request->ixy = _ixy;
+  request->ixz = _ixz;
   request->iyy = _iyy;
   request->iyz = _iyz;
   request->izz = _izz;
@@ -261,15 +303,15 @@ void GazeboRosPropertiesTest::SetLinkProperties(
 void GazeboRosPropertiesTest::GetLightProperties(
   const std::string & _light_name,
   const ignition::math::Vector4d & _diffuse,
-  const std:float64 & _attenuation_constant,
-  const std:float64 & _attenuation_linear,
-  const std:float64 & _attenuation_quadratic)
+  const double & _attenuation_constant,
+  const double & _attenuation_linear,
+  const double & _attenuation_quadratic)
 {
   auto entity = world_->EntityByName(_light_name);
   ASSERT_NE(nullptr, entity);
 
   auto request = std::make_shared<gazebo_msgs::srv::GetLightProperties::Request>();
-  request->_light_name = _light_name;
+  request->light_name = _light_name;
 
   auto response_future = get_light_properties_client_->async_send_request(request);
   EXPECT_EQ(rclcpp::executor::FutureReturnCode::SUCCESS,
@@ -287,18 +329,17 @@ void GazeboRosPropertiesTest::GetLightProperties(
   EXPECT_NEAR(_attenuation_constant, response->attenuation_constant, tol) << _light_name;
   EXPECT_NEAR(_attenuation_linear, response->attenuation_linear, tol) << _light_name;
   EXPECT_NEAR(_attenuation_quadratic, response->attenuation_quadratic, tol) << _light_name;
-
 }
 
 void GazeboRosPropertiesTest::SetLightProperties(
   const std::string & _light_name,
   const ignition::math::Vector4d & _diffuse,
-  const std:float64 & _attenuation_constant,
-  const std:float64 & _attenuation_linear,
-  const std:float64 & _attenuation_quadratic)
+  const double & _attenuation_constant,
+  const double & _attenuation_linear,
+  const double & _attenuation_quadratic)
 {
   auto request = std::make_shared<gazebo_msgs::srv::SetLightProperties::Request>();
-  request->_light_name = _light_name;
+  request->light_name = _light_name;
   request->diffuse.r = _diffuse.X();
   request->diffuse.g = _diffuse.Y();
   request->diffuse.b = _diffuse.Z();
@@ -307,7 +348,7 @@ void GazeboRosPropertiesTest::SetLightProperties(
   request->attenuation_linear = _attenuation_linear;
   request->attenuation_quadratic = _attenuation_quadratic;
 
-  auto response_future = set_link_properties_client_->async_send_request(request);
+  auto response_future = set_light_properties_client_->async_send_request(request);
   EXPECT_EQ(rclcpp::executor::FutureReturnCode::SUCCESS,
     rclcpp::spin_until_future_complete(node_, response_future));
 
@@ -318,39 +359,55 @@ void GazeboRosPropertiesTest::SetLightProperties(
 
 TEST_F(GazeboRosPropertiesTest, GetSet)
 {
+  //Get model properties
+  {
+    this->GetModelProperties("simple_arm");
+  }
+  //Get / set joint propertires
+  {
+    std::vector<double> v; //empty
+    std::vector<double> v_d; //damping
+    v_d.push_back(0.5); //damping set
+
+    // Get initial joint properties (damping only)
+    this->GetJointProperties("simple_arm::arm_shoulder_pan_joint", v);
+
+    // Set joint properties (damping only)
+    this->GetJointProperties("simple_arm::arm_shoulder_pan_joint", v_d);
+
+    // Check new joint properties (damping only)
+    this->GetJointProperties("simple_arm::arm_shoulder_pan_joint", v_d);
+
+  }
   // Get / set link properties
   {
 
     // Get initial link properties
     this->GetLinkProperties("simple_arm::arm_base", 
-                          ignition::math::Pose3d(0, 0, 0, 0, 0, 0),
                           true, 101.0, 1.11, 0.0, 0.0, 100.11, 0.0, 1.01);
 
     // Set link properties
     this->SetLinkProperties("simple_arm::arm_base", 
-                          ignition::math::Pose3d(2.0, 2.0, 2.0, 0, 0, 0),
                           true, 102.2, 1.2, 0.2, 0.2, 102.2, 0.2, 1.02);
 
     // Check new link properties
     this->GetLinkProperties("simple_arm::arm_base", 
-                          ignition::math::Pose3d(2.0, 2.0, 2.0, 0, 0, 0),
                           true, 102.2, 1.2, 0.2, 0.2, 102.2, 0.2, 1.02);
   }
-
   // Get / set light properties
   {
 
     // Get initial light properties
-    this->GetLightProperties("sun", ignition::math::Vector4d(0.800000011920929, 0.800000011920929, 0.800000011920929, 1.0)
-                            0.8999999761581421, 0.009999999776482582, 0.0010000000474974513)
+    this->GetLightProperties("sun", ignition::math::Vector4d(0.800000011920929, 0.800000011920929, 0.800000011920929, 1.0),
+                            0.8999999761581421, 0.009999999776482582, 0.0010000000474974513);
 
     // Set light properties
-    this->SetLightProperties("sun", ignition::math::Vector4d(0.92, 0.92, 0.92, 1.02)
-                            0.92, 0.0092, 0.002)
+    this->SetLightProperties("sun", ignition::math::Vector4d(0.92, 0.92, 0.92, 1.02),
+                            0.92, 0.0092, 0.002);
 
     // Check new light properties
-    this->GetLightProperties("sun", ignition::math::Vector4d(0.92, 0.92, 0.92, 1.02)
-                            0.92, 0.0092, 0.002)
+    this->GetLightProperties("sun", ignition::math::Vector4d(0.92, 0.92, 0.92, 1.02),
+                            0.92, 0.0092, 0.002);
   }
 }
 
@@ -360,9 +417,3 @@ int main(int argc, char ** argv)
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
-
-
-
-
-
-
