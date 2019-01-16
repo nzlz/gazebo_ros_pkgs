@@ -185,8 +185,8 @@ void GazeboRosPropertiesTest::GetModelProperties(
   EXPECT_EQ(response->geom_names[4], "arm_elbow_pan_geom");
   EXPECT_EQ(response->geom_names[5], "arm_elbow_pan_geom_arm_elbow");
   EXPECT_EQ(response->geom_names[6], "arm_elbow_pan_geom_arm_wrist");
-  EXPECT_EQ(response->geom_names[6], "arm_wrist_lift_geom");
-  EXPECT_EQ(response->geom_names[6], "arm_wrist_roll_geom");
+  EXPECT_EQ(response->geom_names[7], "arm_wrist_lift_geom");
+  EXPECT_EQ(response->geom_names[8], "arm_wrist_roll_geom");
 
   EXPECT_EQ(response->joint_names[0], "arm_shoulder_pan_joint");
   EXPECT_EQ(response->joint_names[1], "arm_elbow_pan_joint");
@@ -201,9 +201,6 @@ void GazeboRosPropertiesTest::GetJointProperties(
   const std::string & _joint_name,
   const std::vector<double> & _damping)
 {
-  auto entity = world_->EntityByName(_joint_name);
-  ASSERT_NE(nullptr, entity);
-
   auto request = std::make_shared<gazebo_msgs::srv::GetJointProperties::Request>();
   request->joint_name = _joint_name;
 
@@ -214,7 +211,7 @@ void GazeboRosPropertiesTest::GetJointProperties(
   auto response = response_future.get();
   ASSERT_NE(nullptr, response);
   EXPECT_TRUE(response->success);
-  EXPECT_EQ(response->damping[0], _damping);
+  EXPECT_EQ(response->damping[0], _damping[0]);
 }
 
 void GazeboRosPropertiesTest::SetJointProperties(
@@ -245,9 +242,6 @@ void GazeboRosPropertiesTest::GetLinkProperties(
   const double & _iyz,
   const double & _izz)
 {  
-  auto entity = world_->EntityByName(_link_name);
-  ASSERT_NE(nullptr, entity);
-
   auto request = std::make_shared<gazebo_msgs::srv::GetLinkProperties::Request>();
   request->link_name = _link_name;
 
@@ -307,9 +301,6 @@ void GazeboRosPropertiesTest::GetLightProperties(
   const double & _attenuation_linear,
   const double & _attenuation_quadratic)
 {
-  auto entity = world_->EntityByName(_light_name);
-  ASSERT_NE(nullptr, entity);
-
   auto request = std::make_shared<gazebo_msgs::srv::GetLightProperties::Request>();
   request->light_name = _light_name;
 
@@ -359,11 +350,11 @@ void GazeboRosPropertiesTest::SetLightProperties(
 
 TEST_F(GazeboRosPropertiesTest, GetSet)
 {
-  //Get model properties
+  // Get model properties
   {
     this->GetModelProperties("simple_arm");
   }
-  //Get / set joint propertires
+  // Get / set joint propertires
   {
     std::vector<double> v; //empty
     std::vector<double> v_d; //damping
