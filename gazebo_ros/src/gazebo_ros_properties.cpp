@@ -294,16 +294,6 @@ void GazeboRosPropertiesPrivate::GetLinkProperties(
     _res->ixz = inertia->IXZ();
     _res->iyz = inertia->IYZ();
 
-    ignition::math::Vector3d com = body->GetInertial()->CoG();
-
-    _res->com.position.x = com.X();
-    _res->com.position.y = com.Y();
-    _res->com.position.z = com.Z();
-    _res->com.orientation.x = 0; // @todo: gazebo do not support rotated inertia yet
-    _res->com.orientation.y = 0;
-    _res->com.orientation.z = 0;
-    _res->com.orientation.w = 1;
-
     _res->success = true;
     _res->status_message = "GetLinkProperties: got properties";
   }
@@ -397,7 +387,6 @@ void GazeboRosPropertiesPrivate::SetLinkProperties(
     gazebo::physics::InertialPtr mass = body->GetInertial();
     // @todo: FIXME: add inertia matrix rotation to Gazebo
     // mass.SetInertiaRotation(ignition::math::Quaterniondion(_req->com.orientation.w,_res->com.orientation.x,_req->com.orientation.y _req->com.orientation.z));
-    mass->SetCoG(ignition::math::Vector3d(_req->com.position.x,_req->com.position.y,_req->com.position.z));
     mass->SetInertiaMatrix(_req->ixx,_req->iyy,_req->izz,_req->ixy,_req->ixz,_req->iyz);
     mass->SetMass(_req->mass);
     body->SetGravityMode(_req->gravity_mode);

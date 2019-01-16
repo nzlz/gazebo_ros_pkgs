@@ -49,7 +49,6 @@ public:
 
   void GetLinkProperties(
   const std::string & _link_name,
-  const ignition::math::Pose3d & _pose,
   const std::bool & _gravity_mode,
   const std:float64 & _mass,
   const std:float64 & _ixx,
@@ -71,7 +70,6 @@ public:
 
   void SetLinkProperties(
   const std::string & _link_name,
-  const ignition::math::Pose3d & _pose,
   const std::bool & _gravity_mode,
   const std:float64 & _mass,
   const std:float64 & _ixx,
@@ -221,7 +219,6 @@ void GazeboRosPropertiesTest::SetJointProperties()
 
 void GazeboRosPropertiesTest::GetLinkProperties(
   const std::string & _link_name,
-  const ignition::math::Pose3d & _pose,
   const std::bool & _gravity_mode,
   const std:float64 & _mass,
   const std:float64 & _ixx,
@@ -245,15 +242,6 @@ void GazeboRosPropertiesTest::GetLinkProperties(
   ASSERT_NE(nullptr, response);
   EXPECT_TRUE(response->success);
 
-  EXPECT_NEAR(_pose.Pos().X(), response->com.position.x, tol) << _link_name;
-  EXPECT_NEAR(_pose.Pos().Y(), response->com.position.y, tol) << _link_name;
-  EXPECT_NEAR(_pose.Pos().Z(), response->com.position.z, tol) << _link_name;
-
-  EXPECT_NEAR(_pose.Rot().X(), response->com.orientation.x, tol) << _link_name;
-  EXPECT_NEAR(_pose.Rot().Y(), response->com.orientation.y, tol) << _link_name;
-  EXPECT_NEAR(_pose.Rot().Z(), response->com.orientation.z, tol) << _link_name;
-  EXPECT_NEAR(_pose.Rot().W(), response->com.orientation.w, tol) << _link_name;
-
   EXPECT_EQ(_gravity_mode, response->gravity_mode) << _link_name;
   EXPECT_EQ(_mass, response->_mass) << _link_name;
   EXPECT_EQ(_ixx, response->_ixx) << _link_name;
@@ -266,7 +254,6 @@ void GazeboRosPropertiesTest::GetLinkProperties(
 
 void GazeboRosPropertiesTest::SetLinkProperties(
   const std::string & _link_name,
-  const ignition::math::Pose3d & _pose,
   const std::bool & _gravity_mode,
   const std:float64 & _mass,
   const std:float64 & _ixx,
@@ -279,8 +266,6 @@ void GazeboRosPropertiesTest::SetLinkProperties(
 
   auto request = std::make_shared<gazebo_msgs::srv::SetLinkProperties::Request>();
   request->link_name = _link_name;
-  request->com.position = gazebo_ros::Convert<geometry_msgs::msg::Point>(_pose.Pos());
-  request->com.orientation = gazebo_ros::Convert<geometry_msgs::msg::Quaternion>(_pose.Rot());
   request->gravity_mode = _gravity_mode;
   request->mass = _mass;
   request->ixx = _ixx;
