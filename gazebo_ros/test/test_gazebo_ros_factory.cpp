@@ -19,12 +19,13 @@
 #include <rclcpp/rclcpp.hpp>
 #include <memory>
 
+
 class GazeboRosFactoryTest : public gazebo::ServerFixture
 {
 };
 
 // Since the plugin calls rclcpp:init, and that can be called only once, we can only run one test
-TEST_F(GazeboRosFactoryTest, SpawnDelete)
+TEST_F(GazeboRosFactoryTest, SpawnDeleteList)
 {
   // Load empty world with factory plugin and start paused
   this->LoadArgs("-u --verbose -s libgazebo_ros_factory.so");
@@ -86,7 +87,7 @@ TEST_F(GazeboRosFactoryTest, SpawnDelete)
 
     // Model 2
     // Check it has no box2 model
-    EXPECT_EQ(nullptr, world->ModelByName("sdf_box1"));
+    EXPECT_EQ(nullptr, world->ModelByName("sdf_box2"));
 
     // Request spawn box2
     auto request2 = std::make_shared<gazebo_msgs::srv::SpawnEntity::Request>();
@@ -128,10 +129,9 @@ TEST_F(GazeboRosFactoryTest, SpawnDelete)
     ASSERT_NE(nullptr, response3);
     EXPECT_TRUE(response3->success);
 
-    // Expected models are, ground_plane, sdf_box1, sdf_box2, in alphabetical order.
-    EXPECT_EQ(response3->model_names[0],"ground_plane")
-    EXPECT_EQ(response3->model_names[1],"sdf_box1")
-    EXPECT_EQ(response3->model_names[2],"sdf_box2")
+    EXPECT_EQ(response3->model_names[0], "ground_plane");
+    EXPECT_EQ(response3->model_names[1], "sdf_box1");
+    EXPECT_EQ(response3->model_names[2], "sdf_box2");
 
   }
 
