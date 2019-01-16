@@ -53,8 +53,6 @@
 #include "gazebo_msgs/SetPhysicsProperties.h"
 #include "gazebo_msgs/GetPhysicsProperties.h"
 
-#include "gazebo_msgs/GetWorldProperties.h"
-
 #include "gazebo_msgs/GetModelState.h"
 #include "gazebo_msgs/SetModelState.h"
 
@@ -131,9 +129,6 @@ public:
 
   /// \brief
   bool getModelState(gazebo_msgs::GetModelState::Request &req,gazebo_msgs::GetModelState::Response &res);
-
-  /// \brief
-  bool getWorldProperties(gazebo_msgs::GetWorldProperties::Request &req,gazebo_msgs::GetWorldProperties::Response &res);
 
   /// \brief
   bool getLinkState(gazebo_msgs::GetLinkState::Request &req,gazebo_msgs::GetLinkState::Response &res);
@@ -245,7 +240,6 @@ private:
   gazebo::event::ConnectionPtr load_gazebo_ros_api_plugin_event_;
 
   ros::ServiceServer get_model_state_service_;
-  ros::ServiceServer get_world_properties_service_;
   ros::ServiceServer get_link_state_service_;
   ros::ServiceServer set_physics_properties_service_;
   ros::ServiceServer get_physics_properties_service_;
