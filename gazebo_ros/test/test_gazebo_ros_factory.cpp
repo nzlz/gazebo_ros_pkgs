@@ -19,7 +19,6 @@
 #include <rclcpp/rclcpp.hpp>
 #include <memory>
 
-
 class GazeboRosFactoryTest : public gazebo::ServerFixture
 {
 };
