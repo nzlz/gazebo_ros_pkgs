@@ -20,6 +20,7 @@
 #include <gazebo/physics/Model.hh>
 #include <gazebo/physics/World.hh>
 #include <gazebo/physics/Collision.hh>
+#include <gazebo/transport/Node.hh>
 #include <gazebo_msgs/srv/get_world_properties.hpp>
 #include <gazebo_msgs/srv/get_model_properties.hpp>
 #include <gazebo_msgs/srv/get_joint_properties.hpp>
@@ -119,6 +120,12 @@ public:
   /// \brief ROS service to handle requests to set light properties.
   rclcpp::Service<gazebo_msgs::srv::SetLightProperties>::SharedPtr set_light_properties_service_;
 
+  /// Gazebo node for communication.
+  gazebo::transport::NodePtr gz_node_;
+
+  /// Publishes light factory messages.
+  gazebo::transport::PublisherPtr gz_properties_light_pub_;
+
 };
 
 GazeboRosProperties::GazeboRosProperties()
@@ -170,6 +177,11 @@ void GazeboRosProperties::Load(gazebo::physics::WorldPtr _world, sdf::ElementPtr
     impl_->ros_node_->create_service<gazebo_msgs::srv::SetLightProperties>(
     "set_light_properties", std::bind(&GazeboRosPropertiesPrivate::SetLightProperties, impl_.get(),
     std::placeholders::_1, std::placeholders::_2));
+
+  // Gazebo transport
+  impl_->gz_node_ = gazebo::transport::NodePtr(new gazebo::transport::Node());
+  impl_->gz_node_->Init(_world->Name());
+  impl_->gz_properties_light_pub_ = impl_->gz_node_->Advertise<gazebo::msgs::Light>("~/light/modify");
 
 }
 
@@ -433,9 +445,7 @@ void GazeboRosPropertiesPrivate::SetLightProperties(
     light.set_attenuation_linear(_req->attenuation_linear);
     light.set_attenuation_quadratic(_req->attenuation_quadratic);
 
-    //TODO, is this the correct way to do this?
-    auto light_modify_pub_ = ros_node_->create_publisher<gazebo::msgs::Light>("~/light/modify");
-    light_modify_pub_->publish(light);
+    gz_properties_light_pub_->Publish(light);
 
     _res->success = true;
   }

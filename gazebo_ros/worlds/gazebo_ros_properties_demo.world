@@ -24,8 +24,13 @@
   Try modifying the damping of a joint:
       ros2 service call /demo/set_joint_properties 'gazebo_msgs/SetJointProperties' '{joint_name: "simple_arm::arm_shoulder_pan_joint", ode_joint_config: {damping: {1.0}}}'
 
-  TODO: Update once Light and Link are fixed.
+  Or a links properties:
+      ros2 service call /demo/set_link_properties 'gazebo_msgs/SetLinkProperties' '{link_name: "simple_arm::arm_base", mass: 150.0 , izz: 2.0}'
+
+  TODO: Update once Light is fixed.
   
+  ros2 service call /demo/set_light_properties 'gazebo_msgs/SetLightProperties' '{light_name: "sun", diffuse: {r: 0.8, g: 0.9, b: 0.8, a: 1.0}, attenuation_constant: 0.9, attenuation_linear: 0.01, attenuation_quadratic: 0.001}'
+
 -->
 <sdf version='1.6'>
   <world name='default'>
