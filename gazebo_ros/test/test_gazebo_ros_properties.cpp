@@ -33,7 +33,8 @@
 #include <memory>
 #include <string>
 
-#define tol 10e-2
+
+#define tol 0.01
 
 class GazeboRosPropertiesTest : public gazebo::ServerFixture
 {
@@ -46,7 +47,7 @@ public:
 
   void GetJointProperties(
   const std::string & _joint_name,
-  const std::vector<double> & _damping);
+  const double & _damping);
 
   void GetLinkProperties(
   const std::string & _link_name,
@@ -68,7 +69,7 @@ public:
 
   void SetJointProperties(
   const std::string & _joint_name,
-  const std::vector<double> & _damping);
+  const double & _damping);
 
   void SetLinkProperties(
   const std::string & _link_name,
@@ -199,7 +200,7 @@ void GazeboRosPropertiesTest::GetModelProperties(
 
 void GazeboRosPropertiesTest::GetJointProperties(
   const std::string & _joint_name,
-  const std::vector<double> & _damping)
+  const double & _damping)
 {
   auto request = std::make_shared<gazebo_msgs::srv::GetJointProperties::Request>();
   request->joint_name = _joint_name;
@@ -211,16 +212,24 @@ void GazeboRosPropertiesTest::GetJointProperties(
   auto response = response_future.get();
   ASSERT_NE(nullptr, response);
   EXPECT_TRUE(response->success);
-  EXPECT_EQ(response->damping[0], _damping[0]);
+
+  std::vector<double> v;
+  v.push_back(_damping);
+  if ((response->damping).size() > 0){
+    EXPECT_EQ(response->damping, v);
+  }
 }
 
 void GazeboRosPropertiesTest::SetJointProperties(
   const std::string & _joint_name,
-  const std::vector<double> & _damping)
+  const double & _damping)
 {
   auto request = std::make_shared<gazebo_msgs::srv::SetJointProperties::Request>();
   request->joint_name = _joint_name;
-  request->ode_joint_config.damping = _damping;
+
+  std::vector<double> v;
+  v.push_back(_damping);
+  request->ode_joint_config.damping = v;
 
   auto response_future = set_joint_properties_client_->async_send_request(request);
   EXPECT_EQ(rclcpp::executor::FutureReturnCode::SUCCESS,
@@ -348,7 +357,7 @@ void GazeboRosPropertiesTest::SetLightProperties(
   EXPECT_TRUE(response->success);
 }
 
-TEST_F(GazeboRosPropertiesTest, GetSet)
+TEST_F(GazeboRosPropertiesTest, GetSetProperties)
 {
   // Get model properties
   {
@@ -356,34 +365,30 @@ TEST_F(GazeboRosPropertiesTest, GetSet)
   }
   // Get / set joint propertires
   {
-    std::vector<double> v; //empty
-    std::vector<double> v_d; //damping
-    v_d.push_back(0.5); //damping set
-
-    // Get initial joint properties (damping only)
-    this->GetJointProperties("simple_arm::arm_shoulder_pan_joint", v);
+    // Get initial joint properties (damping only).
+    // Note that damping=1.0 is the default value for this particular joint.
+    this->GetJointProperties("simple_arm::arm_shoulder_pan_joint", 1.0);
 
     // Set joint properties (damping only)
-    this->GetJointProperties("simple_arm::arm_shoulder_pan_joint", v_d);
+    this->SetJointProperties("simple_arm::arm_shoulder_pan_joint", 0.5);
 
-    // Check new joint properties (damping only)
-    this->GetJointProperties("simple_arm::arm_shoulder_pan_joint", v_d);
-
+    // Check new joint properties (damping only).
+    this->GetJointProperties("simple_arm::arm_shoulder_pan_joint", 0.5);
   }
+
   // Get / set link properties
   {
-
     // Get initial link properties
     this->GetLinkProperties("simple_arm::arm_base", 
                           true, 101.0, 1.11, 0.0, 0.0, 100.11, 0.0, 1.01);
 
     // Set link properties
     this->SetLinkProperties("simple_arm::arm_base", 
-                          true, 102.2, 1.2, 0.2, 0.2, 102.2, 0.2, 1.02);
+                          true, 170.2, 1.2, 0.3, 0.2, 102.2, 0.2, 1.02);
 
     // Check new link properties
     this->GetLinkProperties("simple_arm::arm_base", 
-                          true, 102.2, 1.2, 0.2, 0.2, 102.2, 0.2, 1.02);
+                          true, 170.2, 1.2, 0.3, 0.2, 102.2, 0.2, 1.02);
   }
   // Get / set light properties
   {
@@ -393,11 +398,12 @@ TEST_F(GazeboRosPropertiesTest, GetSet)
                             0.8999999761581421, 0.009999999776482582, 0.0010000000474974513);
 
     // Set light properties
-    this->SetLightProperties("sun", ignition::math::Vector4d(0.92, 0.92, 0.92, 1.02),
+    this->SetLightProperties("sun", ignition::math::Vector4d(0.7, 0.1, 0.5, 1.0),
                             0.92, 0.0092, 0.002);
 
-    // Check new light properties
-    this->GetLightProperties("sun", ignition::math::Vector4d(0.92, 0.92, 0.92, 1.02),
+    // Check new light properties. Wait for properties to be set first.
+    rclcpp::sleep_for(std::chrono::milliseconds(500));
+    this->GetLightProperties("sun", ignition::math::Vector4d(0.7, 0.1, 0.5, 1.0),
                             0.92, 0.0092, 0.002);
   }
 }

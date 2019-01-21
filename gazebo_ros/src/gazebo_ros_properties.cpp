@@ -266,8 +266,8 @@ void GazeboRosPropertiesPrivate::GetJointProperties(
     /// @todo: FIXME
     _res->type = _res->REVOLUTE;
 
-    _res->damping.clear(); // to be added to gazebo
-    //_res->damping.push_back(joint->GetDamping(0));
+    _res->damping.clear();
+    _res->damping.push_back(joint->GetDamping(0));
 
     _res->position.clear();
     _res->position.push_back(joint->Position(0));
