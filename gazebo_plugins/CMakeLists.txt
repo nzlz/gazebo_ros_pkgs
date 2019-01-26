@@ -142,6 +142,18 @@ ament_target_dependencies(gazebo_ros_p3d
 )
 ament_export_libraries(gazebo_ros_p3d)
 
+# gazebo_ros_contact
+add_library(gazebo_ros_contact SHARED
+  src/gazebo_ros_contact.cpp
+)
+ament_target_dependencies(gazebo_ros_contact
+  "gazebo_ros"
+  "gazebo_dev"
+  "geometry_msgs"
+  "rclcpp"
+)
+ament_export_libraries(gazebo_ros_contact)
+
 ament_export_include_directories(include)
 ament_export_dependencies(rclcpp)
 ament_export_dependencies(gazebo_dev)
@@ -166,6 +178,7 @@ install(TARGETS
     gazebo_ros_joint_state_publisher
     gazebo_ros_ray_sensor
     gazebo_ros_p3d
+    gazebo_ros_contact
     gazebo_ros_template
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
