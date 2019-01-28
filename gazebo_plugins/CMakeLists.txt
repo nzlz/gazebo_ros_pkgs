@@ -15,6 +15,7 @@ find_package(ament_cmake REQUIRED)
 find_package(camera_info_manager REQUIRED)
 find_package(gazebo_dev REQUIRED)
 find_package(gazebo_ros REQUIRED)
+find_package(gazebo_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(image_transport REQUIRED)
 find_package(nav_msgs REQUIRED)
@@ -28,6 +29,7 @@ find_package(tf2_ros REQUIRED)
 include_directories(include
   ${gazebo_dev_INCLUDE_DIRS}
   ${gazebo_ros_INCLUDE_DIRS}
+  ${gazebo_msgs_INCLUDE_DIRS}
   ${geometry_msgs_INCLUDE_DIRS}
   ${image_transport_INCLUDE_DIRS}
   ${nav_msgs_INCLUDE_DIRS}
@@ -149,6 +151,7 @@ add_library(gazebo_ros_contact SHARED
 ament_target_dependencies(gazebo_ros_contact
   "gazebo_ros"
   "gazebo_dev"
+  "gazebo_msgs"
   "geometry_msgs"
   "rclcpp"
 )

@@ -1,11 +1,11 @@
-#ifndef GAZEBO_ROS__GAZEBO_ROS_CONTACT_HPP_
-#define GAZEBO_ROS__GAZEBO_ROS_CONTACT_HPP_
+#ifndef GAZEBO_PLUGINS__GAZEBO_ROS_CONTACT_HPP_
+#define GAZEBO_PLUGINS__GAZEBO_ROS_CONTACT_HPP_
 
 #include <gazebo/common/Plugin.hh>
 
 #include <memory>
 
-namespace gazebo_ros
+namespace gazebo_plugins
 {
 
 class GazeboRosContactPrivate;

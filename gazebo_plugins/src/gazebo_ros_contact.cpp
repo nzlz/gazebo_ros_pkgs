@@ -37,7 +37,7 @@
 #include <vector>
 #include <iostream>
 
-namespace gazebo_ros
+namespace gazebo_plugins
 {
 
 class GazeboRosContactPrivate
@@ -74,7 +74,6 @@ GazeboRosContact::~GazeboRosContact()
 {
 }
 
-
 void GazeboRosContact::Load(int  argc , char **  argv )
 {
   // Initialize ROS with arguments
@@ -103,7 +102,7 @@ void GazeboRosContactPrivate::OnWorldCreated(const std::string & _world_name)
   world_ = gazebo::physics::get_world();
 
   // ROS transport
-  ros_node_ = gazebo_ros::Node::Get();
+  //ros_node_ = gazebo_ros::Node::Get();
 
   // Gazebo transport
   gz_node_ = gazebo::transport::NodePtr(new gazebo::transport::Node());
@@ -111,7 +110,7 @@ void GazeboRosContactPrivate::OnWorldCreated(const std::string & _world_name)
 
   // Listen to Gazebo world_stats topic
   gazebo::transport::SubscriberPtr sub = gz_node_->Subscribe(
-    "~physics/contacts",
+    "/gazebo/default/physics/contacts",
     &GazeboRosContactPrivate::PublishContacts, this);
 }
 
